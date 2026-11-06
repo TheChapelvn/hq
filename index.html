@@ -169,7 +169,7 @@ function boot(SNAP) {
     '<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="메뉴 폭 조절" tabindex="0"></div>' +
     '<main><div class="page"><header><div><h1 id="title"></h1><div class="meta">베트남 · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' 24:00(전일자) · 마지막 갱신 ' + SNAP.asOf + ' (매일 01:00)</div></div>' +
     '<div class="controls" id="controls"></div></header><div id="view" class="page"></div>' +
-    '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 VAT 8%, 100 VND = 5.47원. 2027년 예식 금액은 2027년 환율 확정(2027년 1월) 후 표시.</div>' +
+    '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 VAT 8%, 100 VND = 5.47원. 2027년 예식은 VAT 10%, 환율 임시 5.47원(2026년 환율) — 2027년 1월 초 2026년 연평균 확정치로 자동 보정.</div>' +
     '<div>계획: 본사 26년 사업계획(웨딩 슬롯별 472슬롯, 뷔페·B2B 일자별). 하객 = 성인 + 아동 ÷ 2. 뷔페·B2B = 이바지 TotalRevenue. 정의는 본사 실적 지표 정의서(r3 + r4)를 따릅니다.</div></footer></div></main></div>';
 
   // menu
@@ -336,7 +336,7 @@ function boot(SNAP) {
     if (needBk(el)) return;
     var bk = SNAP.bk, out = '';
     bk.years.forEach(function (y) {
-      var H = bk.hall[y], money = y <= +cutY;
+      var H = bk.hall[y], money = true;
       var hd = '<thead><tr><th>홀</th><th>확보건수</th><th>취소건수</th><th>계획건수</th><th>계획비</th><th>CAPA</th><th>확보 ÷ CAPA</th><th>확보 매출(백만)</th><th class="ref">계획 매출(백만)</th></tr></thead>';
       var row = function (h, kls) {
         var o = H[h], d = o.plan ? o.booked - o.plan : null;
@@ -344,7 +344,7 @@ function boot(SNAP) {
           '<td class="num ' + cls(d) + '">' + fmt.diff(d, fmt.int) + '</td><td class="num">' + (o.capa ? fmt.int(o.capa) : '-') + '</td><td class="num">' + (o.capa ? fmt.rate(o.booked / o.capa) : '-') + '</td>' +
           '<td class="num">' + (money ? fmt.mil(o.rev) : '-') + '</td><td class="num ref">' + (o.planrev ? fmt.mil(o.planrev) : '-') + '</td></tr>';
       };
-      out += '<section>' + secHead(y + '년 예식', y === +cutY ? '확보 = 취소가 아닌 계약(예식 전 포함) · 확보 ÷ CAPA = 엑셀 FACT_CAPA 진도율(확보율)과 같은 산식' : '계획 미수령 · 연 CAPA 750 · 금액은 2027년 환율 확정 후 표시') +
+      out += '<section>' + secHead(y + '년 예식', y === +cutY ? '확보 = 취소가 아닌 계약(예식 전 포함) · 확보 ÷ CAPA = 엑셀 FACT_CAPA 진도율(확보율)과 같은 산식' : '계획 미수령 · 연 CAPA 750 · 금액은 VAT 10%, 임시 환율 5.47원(1월 확정치로 보정)') +
         table(hd, row('LABELLE', '') + row('LECLAIR', '') + row('ALL', 'tot')) + '</section>';
     });
     el.innerHTML = out;
@@ -358,7 +358,7 @@ function boot(SNAP) {
     var d = function (s) { return s.slice(2).replace(/-/g, '.'); };
     var bd = bk.daily.map(function (r) {
       return '<tr' + (r.key === 'year' ? ' class="tot"' : '') + '><td>' + r.label + ' <span class="note">(' + d(r.from) + (r.from !== r.to ? '~' + d(r.to) : '') + ')</span></td><td class="num l">' + fmt.int(r[y0].cnt) + '</td><td class="num">' + fmt.mil(r[y0].rev) + '</td>' +
-        '<td class="num l">' + fmt.int(r[y1].cnt) + '</td><td class="num">-</td></tr>';
+        '<td class="num l">' + fmt.int(r[y1].cnt) + '</td><td class="num">' + fmt.mil(r[y1].rev) + '</td></tr>';
     }).join('');
     // 누적 계약건수 (계약월)
     var ms = []; Object.keys(bk.signed).forEach(function (y) { Object.keys(bk.signed[y]).forEach(function (m) { if (ms.indexOf(m) < 0) ms.push(m); }); }); ms.sort();
@@ -367,13 +367,13 @@ function boot(SNAP) {
       var acc = 0, cells = ms.map(function (m) { acc += bk.signed[y][m] || 0; return '<td class="num">' + (acc ? fmt.int(acc) : '-') + '</td>'; }).join('');
       return '<tr><td>' + y + '년 예식 누적</td>' + cells + '</tr>';
     }).join('');
-    el.innerHTML = '<section>' + secHead('기간별 계약 현황', '현재 유효 계약(취소 제외) · 당주 = 이번 주 월요일부터 · 내년 예식 금액은 2027년 환율 확정 후 표시') + table(hd, bd) + '</section>' +
+    el.innerHTML = '<section>' + secHead('기간별 계약 현황', '현재 유효 계약(취소 제외) · 당주 = 이번 주 월요일부터 · 내년 예식 금액은 VAT 10%, 임시 환율 5.47원(1월 확정치로 보정)') + table(hd, bd) + '</section>' +
       '<section>' + secHead('누적 계약건수', '계약일 월 기준 누적 · 예식 연도별') + table(hd2, bd2) + '</section>';
   };
 
   V.booking = function (el) {
     if (needBk(el)) return;
-    var bk = SNAP.bk, y = state.year, h = state.hall, M = bk.month[y], money = y <= +cutY;
+    var bk = SNAP.bk, y = state.year, h = state.hall, M = bk.month[y], money = true;
     // 슬롯타입별
     var order = ['토g', '일g', '토non', '일non', 'non', '운영 외'];
     var st = bk.slot[y] || {}, keys = Object.keys(st).sort(function (a, b) { return (order.indexOf(a) < 0 ? 99 : order.indexOf(a)) - (order.indexOf(b) < 0 ? 99 : order.indexOf(b)); });
@@ -399,7 +399,7 @@ function boot(SNAP) {
       line('확보 ÷ CAPA', function (o) { return '<td class="num">' + (o.capa ? fmt.rate(o.booked / o.capa) : '-') + '</td>'; }) +
       (money ? line('확보 매출(백만)', function (o) { return '<td class="num">' + (o.booked ? fmt.mil(o.rev) : '-') + '</td>'; }) +
         line('계획 매출(백만)', function (o) { return '<td class="num ref">' + (o.planrev ? fmt.mil(o.planrev) : '-') + '</td>'; }) : '');
-    el.innerHTML = slotSec + '<section>' + secHead('예식월별 확보 현황', y + '년 예식 · ' + hallName(h) + ' · 확보 = 취소가 아닌 계약(예식 전 포함)' + (money ? '' : ' · 금액은 2027년 환율 확정 후')) + table(hd2, bd2) + '</section>';
+    el.innerHTML = slotSec + '<section>' + secHead('예식월별 확보 현황', y + '년 예식 · ' + hallName(h) + ' · 확보 = 취소가 아닌 계약(예식 전 포함)' + (y > +cutY ? ' · 금액은 VAT 10%, 임시 환율 5.47원(1월 확정치로 보정)' : '')) + table(hd2, bd2) + '</section>';
   };
 
   V.slots = function (el) {
