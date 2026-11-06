@@ -167,7 +167,7 @@ function boot(SNAP) {
 
   app.innerHTML = '<div class="shell"><nav id="nav" aria-label="메뉴"><div class="brand">The Chapel Vietnam</div><div class="sub">실적 · 데이터 기준 ' + cut + '</div></nav>' +
     '<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="메뉴 폭 조절" tabindex="0"></div>' +
-    '<main><div class="page"><header><div><h1 id="title"></h1><div class="meta">베트남 · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' 24:00(전일자) · 마지막 갱신 ' + SNAP.asOf + ' (30분마다)</div></div>' +
+    '<main><div class="page"><header><div><h1 id="title"></h1><div class="meta">베트남 · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' 24:00(전일자) · 마지막 갱신 ' + SNAP.asOf + ' (매일 01:00)</div></div>' +
     '<div class="controls" id="controls"></div></header><div id="view" class="page"></div>' +
     '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 VAT 8%, 100 VND = 5.47원. 2027년 예식 금액은 2027년 환율 확정(2027년 1월) 후 표시.</div>' +
     '<div>계획: 본사 26년 사업계획(웨딩 슬롯별 472슬롯, 뷔페·B2B 일자별). 하객 = 성인 + 아동 ÷ 2. 뷔페·B2B = 이바지 TotalRevenue. 정의는 본사 실적 지표 정의서(r3 + r4)를 따릅니다.</div></footer></div></main></div>';
@@ -225,7 +225,7 @@ function boot(SNAP) {
 
   // ---------- views ----------
   var V = {};
-  var needBk = function (el) { if (SNAP.bk) return false; el.innerHTML = '<p class="note">이 화면의 데이터는 다음 갱신(30분 이내) 후 표시됩니다.</p>'; return true; };
+  var needBk = function (el) { if (SNAP.bk) return false; el.innerHTML = '<p class="note">이 화면의 데이터는 다음 갱신(매일 01:00) 후 표시됩니다.</p>'; return true; };
 
   V.summary = function (el) {
     var m = state.month, h = state.hall, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), S = stream(m), Y = stream('YTD-' + y), F = stream('FY-' + y);
