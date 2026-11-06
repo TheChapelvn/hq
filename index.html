@@ -8,62 +8,76 @@
 <title>The Chapel Vietnam</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
 <style>
-/* Public HQ view (Web.js → doGet). Aggregates only: no contract ids, no per-contract money. White, ink-only; colour for actuals and shortfalls. */
+/* Public HQ view. Aggregates only: no contract ids, no per-contract money. White, ink-only; colour only for shortfalls (red) and gains (blue).
+   Left menu + right screen; the menu width is adjustable (drag the divider). Tables only — no charts. */
 :root{
   --bg:#ffffff; --surface:#ffffff; --sunk:#f6f7f8; --ink:#16181b; --ink-2:#555b63; --ink-3:#868c94;
   --rule:#e4e6e9; --rule-2:#cfd3d8; --accent:#1f5fa8; --accent-soft:#e3ecf7; --neg:#b42318; --plan:#6b7078;
   --font:"Calibri","Carlito","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+  --nav-w:200px;
 }
 *{box-sizing:border-box}
-html,body{margin:0}
-body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
-.wrap{max-width:1120px;margin:0 auto;display:grid;gap:36px}
-h1{font-size:26px;font-weight:700;margin:0;letter-spacing:-.01em}
-h2{font-size:17px;font-weight:700;margin:0}
-.meta{color:var(--ink-2);font-size:13px;margin-top:4px}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:14.5px;line-height:1.5}
 .num{font-variant-numeric:tabular-nums}
-header{display:grid;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:18px}
-.controls{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
-.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-.ctl>span{font-size:12px;color:var(--ink-3);letter-spacing:.06em}
+.shell{display:grid;grid-template-columns:var(--nav-w) 6px minmax(0,1fr);min-height:100vh}
+nav{border-right:1px solid var(--rule);padding:20px 10px;position:sticky;top:0;height:100vh;overflow:auto;background:var(--surface)}
+nav .brand{font-weight:700;font-size:16px;padding:0 8px 2px}
+nav .sub{font-size:12px;color:var(--ink-3);padding:0 8px 16px;border-bottom:1px solid var(--rule);margin-bottom:10px}
+nav button{display:block;width:100%;text-align:left;font:inherit;font-size:14px;color:var(--ink-2);background:none;border:0;border-radius:6px;padding:8px 10px;cursor:pointer;margin:1px 0}
+nav button:hover{background:var(--sunk)}
+nav button[aria-current="page"]{background:var(--ink);color:var(--bg);font-weight:700}
+nav button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+.gutter{cursor:col-resize;background:transparent;position:relative}
+.gutter::after{content:"";position:absolute;top:0;bottom:0;left:2px;width:2px;background:transparent}
+.gutter:hover::after,.gutter.drag::after{background:var(--rule-2)}
+main{padding:24px clamp(16px,3vw,36px) 56px;min-width:0}
+.page{max-width:1280px;display:grid;gap:28px}
+header{display:grid;gap:12px;border-bottom:2px solid var(--ink);padding-bottom:14px}
+h1{font-size:22px;font-weight:700;margin:0}
+h2{font-size:16px;font-weight:700;margin:0}
+.meta{color:var(--ink-2);font-size:12.5px;margin-top:2px}
+.controls{display:flex;flex-wrap:wrap;gap:10px 24px;align-items:center}
+.ctl{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.ctl>span{font-size:12px;color:var(--ink-3);letter-spacing:.04em}
 .seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-2);border-radius:6px;overflow:hidden}
-.seg button{font:inherit;font-size:14px;background:var(--surface);color:var(--ink-2);border:0;border-left:1px solid var(--rule-2);padding:6px 12px;cursor:pointer}
+.seg button{font:inherit;font-size:13.5px;background:var(--surface);color:var(--ink-2);border:0;border-left:1px solid var(--rule-2);padding:5px 11px;cursor:pointer}
 .seg button:first-child{border-left:0}
 .seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
 .seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
-section{display:grid;gap:14px}
-.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:8px}
-.sec-head p{margin:0;color:var(--ink-3);font-size:13px}
-.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border:1px solid var(--rule);border-radius:8px;overflow:hidden}
-.kpi{padding:16px 18px;border-left:1px solid var(--rule);display:grid;gap:6px;min-width:0}
+section{display:grid;gap:10px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:6px}
+.sec-head p{margin:0;color:var(--ink-3);font-size:12.5px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.kpi{padding:14px 16px;border-left:1px solid var(--rule);display:grid;gap:4px;min-width:0}
 .kpi:first-child{border-left:0}
-.kpi .lbl{font-size:13px;color:var(--ink-2)}
-.kpi .val{font-size:30px;font-weight:700;line-height:1.1}
-.kpi .val small{font-size:15px;font-weight:400;color:var(--ink-2);margin-left:3px}
-.kpi .vs{font-size:13px;color:var(--ink-2)}
-.kpi .ytd{font-size:13px;color:var(--ink-3);border-top:1px dashed var(--rule);padding-top:6px}
+.kpi .lbl{font-size:12.5px;color:var(--ink-2)}
+.kpi .val{font-size:26px;font-weight:700;line-height:1.15}
+.kpi .val small{font-size:13.5px;font-weight:400;color:var(--ink-2);margin-left:3px}
+.kpi .vs{font-size:12.5px;color:var(--ink-2)}
+.kpi .ytd{font-size:12.5px;color:var(--ink-3);border-top:1px dashed var(--rule);padding-top:5px}
 .neg{color:var(--neg)} .pos{color:var(--accent)}
+.stack{display:grid;gap:14px}
+.page>*,section>*,.stack>*{min-width:0}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
-table{border-collapse:collapse;width:100%;font-size:14px}
-th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
-th{font-weight:700;color:var(--ink-2);background:var(--sunk);font-size:13px}
+table{border-collapse:collapse;width:100%;font-size:13.5px}
+th,td{padding:6px 9px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-weight:700;color:var(--ink-2);background:var(--sunk);font-size:12.5px}
 td:first-child,th:first-child{text-align:left}
+th.grp{text-align:center;border-left:1px solid var(--rule-2)}
+td.l,th.l{border-left:1px solid var(--rule-2)}
 tr.block td{font-weight:700;background:var(--sunk)}
-tr.sub td:first-child{padding-left:24px;color:var(--ink-2)}
-tr.sub2 td:first-child{padding-left:40px;color:var(--ink-2)}
+tr.sub td:first-child{padding-left:22px;color:var(--ink-2)}
+tr.sub2 td:first-child{padding-left:38px;color:var(--ink-2)}
+tr.tot td{font-weight:700;background:#fbfbfc}
 tr.hq td{color:var(--ink-3)}
 td.dash{color:var(--ink-3);text-align:center}
 td.ref,th.ref{color:var(--ink-3)}
+td.lbl2{color:var(--ink-3);font-size:12.5px}
 tbody tr:last-child td{border-bottom:0}
-.chart-box{position:relative;border:1px solid var(--rule);border-radius:8px;padding:14px 14px 6px}
-.legend{display:flex;gap:18px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
-.key{display:inline-flex;align-items:center;gap:6px}
-.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
-.sw.act{background:var(--accent)} .sw.plan{border:2px solid var(--plan)}
-svg text{font-family:var(--font)}
-.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--rule-2);border-radius:6px;padding:8px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:170px}
-.tip b{display:block;margin-bottom:2px}
-.tip .row{display:flex;justify-content:space-between;gap:16px;color:var(--ink-2)}
+tr.grp-first td{border-top:1px solid var(--rule-2)}
+tbody tr.grp-first:first-child td{border-top:0}
+.note{color:var(--ink-3);font-size:12.5px;margin:0}
 .board-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
 .board{display:grid;grid-template-columns:112px repeat(6,minmax(56px,1fr));min-width:520px;font-size:13px}
 .board>div{padding:6px 8px;border-bottom:1px solid var(--rule)}
@@ -83,12 +97,19 @@ svg text{font-family:var(--font)}
 .board-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);align-items:center}
 .board-legend .slot{width:28px;height:14px;vertical-align:middle;margin-right:6px}
 .empty{padding:40px 16px;text-align:center;color:var(--ink-2)}
-footer{color:var(--ink-3);font-size:12.5px;display:grid;gap:4px;border-top:1px solid var(--rule);padding-top:14px}
-@media (max-width:520px){.kpi{border-left:0;border-top:1px solid var(--rule)}.kpi:first-child{border-top:0}.kpi .val{font-size:26px}}
+footer{color:var(--ink-3);font-size:12px;display:grid;gap:3px;border-top:1px solid var(--rule);padding-top:12px}
+@media (max-width:760px){
+  .shell{grid-template-columns:1fr}
+  nav{position:static;height:auto;border-right:0;border-bottom:1px solid var(--rule);padding:12px 12px 8px;display:flex;flex-wrap:wrap;gap:4px;align-items:center}
+  nav .brand,nav .sub{display:none}
+  nav button{width:auto;padding:6px 10px;font-size:13px}
+  .gutter{display:none}
+  .kpi{border-left:0;border-top:1px solid var(--rule)} .kpi:first-child{border-top:0}
+}
 </style>
 </head>
 <body>
-<div class="wrap" id="app"></div>
+<div id="app"></div>
 <script>
 /* boot(SNAP) draws the page from one aggregate snapshot. Apps Script inlines it below; the GitHub Pages copy
    (tools/build-pages.js) fetches it from the web app's JSON endpoint instead. */
@@ -98,181 +119,291 @@ function boot(SNAP) {
     app.innerHTML = '<div class="empty"><h1>The Chapel Vietnam</h1><p>이 링크는 올바르지 않거나 만료되었습니다. 최신 링크를 담당자에게 요청해 주세요.</p></div>';
     return;
   }
+  // ---------- helpers ----------
   var HALLS = [['ALL', '전체'], ['LABELLE', 'La Belle'], ['LECLAIR', 'Le Clair']];
   var hallName = function (h) { return HALLS.filter(function (x) { return x[0] === h; })[0][1]; };
-  var cut = SNAP.cutoff, cutY = cut.slice(0, 4);
-  var YEAR = 'YTD-' + cutY;                                     // selector value for the year-to-date total
-  var state = { month: SNAP.months[SNAP.months.length - 1], hall: 'ALL' };
-  try { var sv = JSON.parse(localStorage.getItem('hq-view') || '{}'); if (SNAP.months.indexOf(sv.month) >= 0 || (sv.month && sv.month === YEAR)) state.month = sv.month; if (['ALL', 'LABELLE', 'LECLAIR'].indexOf(sv.hall) >= 0) state.hall = sv.hall; } catch (e) {}
-  function save() { try { localStorage.setItem('hq-view', JSON.stringify(state)); } catch (e) {} }
+  var cut = SNAP.cutoff, cutY = cut.slice(0, 4), YEAR = 'YTD-' + cutY;
   var isYear = function (m) { return m.slice(0, 4) === 'YTD-'; };
   var mLabel = function (m) { return isYear(m) ? m.slice(6) + '년 누계' : +m.slice(5) + '월'; };
   var isPartial = function (m) { return m === cut.slice(0, 7); };
   var A = function (per, h) { return (SNAP.agg[per] || {})[h] || { a: {}, p: null }; };
+  var O = function (per, cate) { var x = SNAP.other && SNAP.other[per] && SNAP.other[per][cate]; return x || null; };
   var vs = function (a, p) { return (a === null || a === undefined || !p) ? null : a / p - 1; };
+  var pp = function (a, p) { return (a === null || a === undefined || p === null || p === undefined) ? null : (a - p) * 100; };
   var fmt = {
-    mil: function (v) { return v === null || v === undefined ? '-' : (v / 1e6).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); },
-    int: function (v) { return v === null || v === undefined ? '-' : Math.round(v).toLocaleString('ko-KR'); },
-    pct: function (v) { return v === null || v === undefined ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v * 100).toFixed(1) + '%'; },
-    pp: function (v) { return v === null || v === undefined ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%p'; },
-    rate: function (v) { return v === null || v === undefined ? '-' : (v * 100).toFixed(1) + '%'; }
+    mil: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : (v / 1e6).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); },
+    int: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : Math.round(v).toLocaleString('ko-KR'); },
+    won: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : Math.round(v).toLocaleString('ko-KR'); },
+    pct: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v * 100).toFixed(1) + '%'; },
+    pp: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%p'; },
+    rate: function (v) { return v === null || v === undefined || isNaN(v) ? '-' : (v * 100).toFixed(1) + '%'; },
+    diff: function (v, f) { return v === null || v === undefined || isNaN(v) ? '-' : (v > 0 ? '+' : v < 0 ? '−' : '') + f(Math.abs(v)); }
   };
-  var cls = function (v) { return v === null || v === undefined ? '' : (v < 0 ? 'neg' : 'pos'); };
-  var capa = function (y) { return SNAP.capa.filter(function (c) { return String(c.year) === String(y); })[0]; };
-  var UT = function (per, h) {
-    var x = A(per, h), a = x.a.ut, p = x.p ? x.p.ut : null;
-    return { a: a === undefined ? null : a, p: p === undefined ? null : p, capa: x.a.capa || 0, pp: (a !== null && a !== undefined && p !== null && p !== undefined) ? (a - p) * 100 : null };
-  };
+  var cls = function (v) { return v === null || v === undefined || isNaN(v) || v === 0 ? '' : (v < 0 ? 'neg' : 'pos'); };
+  var esc = function (s) { return String(s).replace(/[&<>"]/g, function (c) { return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); };
+  var monthsAll = SNAP.months;                                            // 5월 ~ 기준월
+  var mm = function (ym) { return +ym.slice(5) + '월'; };
+  var div = function (a, b) { return b ? a / b : null; };
 
-  app.innerHTML =
-    '<header><div><h1>The Chapel Vietnam</h1><div class="meta">베트남 예식(B2C) · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' · 마지막 갱신 ' + SNAP.asOf + ' (30분마다)</div></div>' +
-    '<div class="controls"><div class="ctl"><span>기준월</span><div class="seg" id="seg-month" role="group" aria-label="기준월"></div></div>' +
-    '<div class="ctl"><span>홀</span><div class="seg" id="seg-hall" role="group" aria-label="홀"></div></div></div></header>' +
-    '<section><div class="sec-head"><h2>요약</h2><p id="kpi-scope"></p></div><div class="kpis" id="kpis"></div></section>' +
-    '<section><div class="sec-head"><h2>본사 보고 양식</h2><p>템플릿 베트남 블록과 같은 행·열 · 단위 건, 명, 백만원(객단가 원) · 뷔페·B2B = 이바지 TotalRevenue · 홀 필터와 무관</p></div><div class="tbl-wrap"><table id="tpl"></table></div></section>' +
-    '<section><div class="sec-head"><h2>월별 예식매출 · 실적 대비 계획</h2><div class="legend"><span class="key"><i class="sw act"></i>실적</span><span class="key"><i class="sw plan"></i>계획</span></div></div>' +
-    '<div class="chart-box" id="chart-box"><svg id="chart" role="img" aria-label="월별 예식매출 실적과 계획" width="100%"></svg><div class="tip" id="tip" hidden></div></div></section>' +
-    '<section><div class="sec-head"><h2>슬롯별 계획 대비</h2><p id="board-counts"></p></div>' +
-    '<div class="board-legend"><span><i class="slot"></i>운영 슬롯 · 계획 없음</span><span><i class="slot planned"></i>계획 예식</span><span><i class="slot actual"></i>실제 예식</span><span><i class="slot actual unplanned"></i>계획 없던 슬롯의 예식</span><span><i class="slot booked"></i>계약 확보(예식 전)</span></div>' +
-    '<div class="board-wrap"><div class="board" id="board"></div></div></section>' +
-    '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 예식 VAT 8%, 하나은행 2025년 연평균 최초 고시 매매기준율 100 VND = 5.47원.</div>' +
-    '<div>계획: 본사 26년 슬롯별 사업계획(472슬롯). 진도율(가동률) = 같은 기간의 예식 수 ÷ CAPA 슬롯 수, 계획도 같은 기간의 계획 예식 ÷ CAPA(차이는 %p). 다음 연도는 확보 ÷ 연 CAPA.</div>' +
-    '<div>뷔페·B2B: 이바지 TotalRevenue(운영팀 일마감·행사 정산 입력, Daily Buffet · B2B 행) — 예식과 같은 환산, 인식일 = 영업일·행사일. 계획: 본사 26년 뷔페·B2B 사업계획.</div>' +
-    '<div>하객: 본사 정산인원 정의(성인 + 아동 ÷ 2). 실제 하객 기록이 없는 예식은 보증 인원(성인). 집계 정의는 지표 정의서를 따릅니다.</div></footer>';
+  // ---------- state ----------
+  var VIEWS = [
+    ['summary', '요약', ['period', 'hall']],
+    ['sales', '매출현황', ['period']],
+    ['annual', '연간계약', []],
+    ['contracts', '계약 현황', []],
+    ['booking', '예약 확보 분석', ['year', 'hall']],
+    ['slots', '슬롯 예약현황', ['slotmonth', 'hall']],
+    ['guests', '객수·객단가', ['period', 'hall']]
+  ];
+  var state = { view: 'summary', month: monthsAll[monthsAll.length - 1], hall: 'ALL', year: +cutY, slotmonth: cut.slice(0, 7) };
+  try {
+    var sv = JSON.parse(localStorage.getItem('hq-view2') || '{}');
+    if (monthsAll.indexOf(sv.month) >= 0 || (sv.month && sv.month === YEAR)) state.month = sv.month;
+    if (['ALL', 'LABELLE', 'LECLAIR'].indexOf(sv.hall) >= 0) state.hall = sv.hall;
+    if (sv.navW) document.documentElement.style.setProperty('--nav-w', sv.navW + 'px');
+  } catch (e) {}
+  var h0 = (location.hash || '').replace('#', ''); if (VIEWS.some(function (v) { return v[0] === h0; })) state.view = h0;
+  function save() { try { var o = JSON.parse(localStorage.getItem('hq-view2') || '{}'); o.month = state.month; o.hall = state.hall; localStorage.setItem('hq-view2', JSON.stringify(o)); } catch (e) {} }
 
-  function seg(id, items, key) {
-    var el = document.getElementById(id); el.innerHTML = '';
+  app.innerHTML = '<div class="shell"><nav id="nav" aria-label="메뉴"><div class="brand">The Chapel Vietnam</div><div class="sub">실적 · 데이터 기준 ' + cut + '</div></nav>' +
+    '<div class="gutter" id="gutter" role="separator" aria-orientation="vertical" aria-label="메뉴 폭 조절" tabindex="0"></div>' +
+    '<main><div class="page"><header><div><h1 id="title"></h1><div class="meta">베트남 · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' 24:00(전일자) · 마지막 갱신 ' + SNAP.asOf + ' (30분마다)</div></div>' +
+    '<div class="controls" id="controls"></div></header><div id="view" class="page"></div>' +
+    '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 VAT 8%, 100 VND = 5.47원. 2027년 예식 금액은 2027년 환율 확정(2027년 1월) 후 표시.</div>' +
+    '<div>계획: 본사 26년 사업계획(웨딩 슬롯별 472슬롯, 뷔페·B2B 일자별). 하객 = 성인 + 아동 ÷ 2. 뷔페·B2B = 이바지 TotalRevenue. 정의는 본사 실적 지표 정의서(r3 + r4)를 따릅니다.</div></footer></div></main></div>';
+
+  // menu
+  var nav = document.getElementById('nav');
+  VIEWS.forEach(function (v) {
+    var b = document.createElement('button'); b.type = 'button'; b.textContent = v[1]; b.id = 'nav-' + v[0];
+    b.onclick = function () { state.view = v[0]; try { history.replaceState(null, '', '#' + v[0]); } catch (e) { location.hash = v[0]; } render(); };
+    nav.appendChild(b);
+  });
+  // adjustable menu width (drag or arrow keys)
+  (function () {
+    var g = document.getElementById('gutter'), root = document.documentElement, dragging = false;
+    var setW = function (w) { w = Math.max(120, Math.min(Math.round(window.innerWidth * 0.4), w)); root.style.setProperty('--nav-w', w + 'px'); try { var o = JSON.parse(localStorage.getItem('hq-view2') || '{}'); o.navW = w; localStorage.setItem('hq-view2', JSON.stringify(o)); } catch (e) {} };
+    g.addEventListener('pointerdown', function (e) { dragging = true; g.classList.add('drag'); g.setPointerCapture(e.pointerId); });
+    g.addEventListener('pointermove', function (e) { if (dragging) setW(e.clientX); });
+    g.addEventListener('pointerup', function () { dragging = false; g.classList.remove('drag'); });
+    g.addEventListener('keydown', function (e) { var w = nav.getBoundingClientRect().width; if (e.key === 'ArrowLeft') setW(w - 16); if (e.key === 'ArrowRight') setW(w + 16); });
+  })();
+
+  function seg(el, items, key) {
+    var box = document.createElement('div'); box.className = 'seg'; box.setAttribute('role', 'group');
     items.forEach(function (it) {
-      var b = document.createElement('button'); b.type = 'button'; b.id = id + '-' + it[0]; b.textContent = it[1];
-      b.setAttribute('aria-pressed', state[key] === it[0]);
+      var b = document.createElement('button'); b.type = 'button'; b.textContent = it[1];
+      b.setAttribute('aria-pressed', String(state[key]) === String(it[0]));
       b.onclick = function () { state[key] = it[0]; save(); render(); };
-      el.appendChild(b);
+      box.appendChild(b);
     });
+    el.appendChild(box);
   }
-
-  function kpis() {
-    var m = state.month, h = state.hall, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), cur = A(m, h), ytd = A('YTD-' + y, h), fy = A('FY-' + y, h), c = capa(y);
-    var upTo = y === cutY ? cut.slice(5).replace('-', '/') : '12/31';
-    document.getElementById('kpi-scope').textContent = yr
-      ? y + '년 누계 (1/1~' + upTo + ') · ' + hallName(h) + ' · 아래 줄은 ' + y + '년 연간 계획(1~12월) 대비 달성률'
-      : mLabel(m) + (isPartial(m) ? ' (1일~' + +cut.slice(8) + '일)' : '') + ' · ' + hallName(h) + ' · 아래 줄은 ' + y + '년 누계(~' + upTo + ')';
-    var tile = function (lbl, key, unit, f) {
-      var a = cur.a[key], p = cur.p ? cur.p[key] : null, ya = ytd.a[key], yp = ytd.p ? ytd.p[key] : null, fp = fy.p ? fy.p[key] : null;
-      var last = yr
-        ? '연간 계획 ' + f(fp) + ((key === 'rev' || key === 'cnt') && fp ? ' · 달성 ' + fmt.rate(a / fp) : '')
-        : '누계 ' + f(ya) + ' / 계획 ' + f(yp) + ' · <span class="' + cls(vs(ya, yp)) + '">' + fmt.pct(vs(ya, yp)) + '</span>';
-      return '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val num">' + f(a) + '<small>' + unit + '</small></div>' +
-        '<div class="vs num">' + (yr ? '누계 계획 ' : '계획 ') + f(p) + ' · <span class="' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</span></div>' +
-        '<div class="ytd num">' + last + '</div></div>';
+  function controls(list) {
+    var c = document.getElementById('controls'); c.innerHTML = '';
+    var add = function (label, items, key) { var d = document.createElement('div'); d.className = 'ctl'; d.innerHTML = '<span>' + label + '</span>'; seg(d, items, key); c.appendChild(d); };
+    if (list.indexOf('period') >= 0) add('기간', monthsAll.map(function (m) { return [m, mLabel(m) + (isPartial(m) ? '*' : '')]; }).concat([[YEAR, mLabel(YEAR)]]), 'month');
+    if (list.indexOf('year') >= 0 && SNAP.bk) add('예식 연도', SNAP.bk.years.map(function (y) { return [y, y + '년']; }), 'year');
+    if (list.indexOf('slotmonth') >= 0) add('예식월', (SNAP.boardMonths || monthsAll).map(function (m) { return [m, mm(m)]; }), 'slotmonth');
+    if (list.indexOf('hall') >= 0) add('홀', HALLS, 'hall');
+  }
+  var scopeText = function (m) { return isYear(m) ? m.slice(6) + '년 누계(1/1~' + cut.slice(5).replace('-', '/') + ')' : mLabel(m) + (isPartial(m) ? ' (1일~' + +cut.slice(8) + '일)' : ''); };
+  var table = function (head, body) { return '<div class="tbl-wrap"><table>' + head + '<tbody>' + body + '</tbody></table></div>'; };
+  var secHead = function (t, p) { return '<div class="sec-head"><h2>' + t + '</h2>' + (p ? '<p>' + p + '</p>' : '') + '</div>'; };
+  // wedding / buffet / B2B / total for a period → { rev:{a,p}, … }
+  var stream = function (per, h) {
+    var w = A(per, h || 'ALL'), b = O(per, 'BUFFET'), x = O(per, 'B2B');
+    var g = function (o, k) { return o && o.p ? o.p[k] : null; };
+    var T = (b && x) ? { a: (w.a.rev || 0) + b.a.rev + x.a.rev, p: ((w.p ? w.p.rev : 0) + (b.p ? b.p.rev : 0) + (x.p ? x.p.rev : 0)) || null } : null;
+    return {
+      W: { rev: [w.a.rev, g(w, 'rev')], cnt: [w.a.cnt, g(w, 'cnt')], per: [w.a.per, g(w, 'per')], gst: [w.a.gst, g(w, 'gst')], pp: [w.a.pp, g(w, 'pp')], ut: [w.a.ut, g(w, 'ut')], gsum: [w.a.gsum, g(w, 'gsum')] },
+      B: b ? { rev: [b.a.rev, g(b, 'rev')], cnt: [b.a.cnt, g(b, 'cnt')], gst: [b.a.gst, g(b, 'gst')], per: [b.a.per, g(b, 'per')], pg: [b.a.pg, g(b, 'pg')] } : null,
+      X: x ? { rev: [x.a.rev, g(x, 'rev')], cnt: [x.a.cnt, g(x, 'cnt')], gst: [x.a.gst, g(x, 'gst')], per: [x.a.per, g(x, 'per')], pg: [x.a.pg, g(x, 'pg')] } : null,
+      T: T ? [T.a, T.p] : null
     };
-    // 진도율(가동률) = 같은 기간의 예식 수 ÷ CAPA 슬롯 수, 계획도 같은 기간 (본사 LOGIC, 2026-11-06)
-    var u = UT(m, h), uy = UT('YTD-' + y, h);
-    var prog = u.capa ? '<div class="kpi"><div class="lbl">' + y.slice(2) + '년 진도율(가동률)</div><div class="val num">' + fmt.rate(u.a) + '</div>' +
-      '<div class="vs num">' + (yr ? '누계 계획 ' : '계획 ') + fmt.rate(u.p) + ' · <span class="' + cls(u.pp) + '">' + fmt.pp(u.pp) + '</span></div>' +
-      '<div class="ytd num">' + (yr ? (c ? '연간 확보 ' + c.booked + ' / CAPA ' + c.capa : '') : '누계 ' + fmt.rate(uy.a) + ' / 계획 ' + fmt.rate(uy.p) + ' · <span class="' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</span>') + '</div></div>' : '';
-    document.getElementById('kpis').innerHTML = tile('예식매출', 'rev', '백만원', fmt.mil) + tile('예식건수', 'cnt', '건', fmt.int) + tile('건당 매출', 'per', '백만원', fmt.mil) + prog;
-  }
+  };
 
-  function template() {
-    var m = state.month, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), L = mLabel(m);
-    // Year selected: YTD total against the YTD plan, then the full-year plan and how much of it is done.
-    var NC = yr ? 7 : 9;
+  // ---------- views ----------
+  var V = {};
+  var needBk = function (el) { if (SNAP.bk) return false; el.innerHTML = '<p class="note">이 화면의 데이터는 다음 갱신(30분 이내) 후 표시됩니다.</p>'; return true; };
+
+  V.summary = function (el) {
+    var m = state.month, h = state.hall, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), S = stream(m), Y = stream('YTD-' + y), F = stream('FY-' + y);
+    var tile = function (lbl, cur, ytd, fy) {
+      if (!cur) return '';
+      var last = yr ? '연간 계획 ' + fmt.mil(fy ? fy[1] : null) + (fy && fy[1] ? ' · 달성 ' + fmt.rate(cur[0] / fy[1]) : '')
+        : '누계 ' + fmt.mil(ytd[0]) + ' / 계획 ' + fmt.mil(ytd[1]) + ' · <span class="' + cls(vs(ytd[0], ytd[1])) + '">' + fmt.pct(vs(ytd[0], ytd[1])) + '</span>';
+      return '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val num">' + fmt.mil(cur[0]) + '<small>백만원</small></div>' +
+        '<div class="vs num">' + (yr ? '누계 계획 ' : '계획 ') + fmt.mil(cur[1]) + ' · <span class="' + cls(vs(cur[0], cur[1])) + '">' + fmt.pct(vs(cur[0], cur[1])) + '</span></div><div class="ytd num">' + last + '</div></div>';
+    };
+    var k = '<section>' + secHead('사업별 매출', scopeText(m) + ' · 아래 줄은 ' + (yr ? y + '년 연간 계획 대비' : y + '년 누계')) + '<div class="kpis">' +
+      tile('총 매출', S.T, Y.T, F.T) + tile('예식', S.W.rev, Y.W.rev, F.W.rev) + (S.B ? tile('뷔페', S.B.rev, Y.B.rev, F.B ? F.B.rev : null) : '') + (S.X ? tile('B2B', S.X.rev, Y.X.rev, F.X ? F.X.rev : null) : '') + '</div></section>';
+    el.innerHTML = k + '<section>' + secHead('본사 보고 양식', '템플릿 베트남 블록과 같은 행·열 · 단위 건, 명, 백만원(객단가 원) · 홀 필터와 무관') + '<div id="tpl"></div></section>';
+    document.getElementById('tpl').innerHTML = templateTable(m);
+  };
+
+  function templateTable(m) {
+    var yr = isYear(m), y = yr ? cutY : m.slice(0, 4), L = mLabel(m), NC = yr ? 7 : 9;
     var head = yr
       ? '<thead><tr><th>구분</th><th>' + L + '</th><th>vs. Budget</th><th>YoY</th><th class="ref">누계 계획</th><th class="ref">연간 계획</th><th>연간 달성률</th></tr></thead>'
       : '<thead><tr><th>구분</th><th>' + L + ' 누계</th><th>vs. Budget</th><th>YoY</th><th>YTD 합계</th><th>vs. Budget</th><th>YoY</th><th class="ref">' + L + ' 계획</th><th class="ref">YTD 계획</th></tr></thead>';
-    var row = function (label, key, f, h, kls) {
-      var c = A(m, h), t = A('YTD-' + y, h), a = c.a[key], p = c.p ? c.p[key] : null, ya = t.a[key], yp = t.p ? t.p[key] : null;
-      if (yr) {
-        var F = A('FY-' + y, h), fp = F.p ? F.p[key] : null, done = (key === 'rev' || key === 'cnt') && fp ? a / fp : null;
-        return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(a) + '</td><td class="num ' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</td><td class="dash">-</td>' +
-          '<td class="num ref">' + f(p) + '</td><td class="num ref">' + f(fp) + '</td><td class="num">' + (done === null ? '<span class="dash">-</span>' : fmt.rate(done)) + '</td></tr>';
-      }
-      return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(a) + '</td><td class="num ' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</td><td class="dash">-</td>' +
-        '<td class="num">' + f(ya) + '</td><td class="num ' + cls(vs(ya, yp)) + '">' + fmt.pct(vs(ya, yp)) + '</td><td class="dash">-</td><td class="num ref">' + f(p) + '</td><td class="num ref">' + f(yp) + '</td></tr>';
+    var cell2 = function (c, t, f, kls, label, fy) {
+      if (yr) { var done = fy && fy[1] ? c[0] / fy[1] : null;
+        return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(c[0]) + '</td><td class="num ' + cls(vs(c[0], c[1])) + '">' + fmt.pct(vs(c[0], c[1])) + '</td><td class="dash">-</td><td class="num ref">' + f(c[1]) + '</td><td class="num ref">' + f(fy ? fy[1] : null) + '</td><td class="num">' + (done === null ? '<span class="dash">-</span>' : fmt.rate(done)) + '</td></tr>'; }
+      return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(c[0]) + '</td><td class="num ' + cls(vs(c[0], c[1])) + '">' + fmt.pct(vs(c[0], c[1])) + '</td><td class="dash">-</td>' +
+        '<td class="num">' + f(t[0]) + '</td><td class="num ' + cls(vs(t[0], t[1])) + '">' + fmt.pct(vs(t[0], t[1])) + '</td><td class="dash">-</td><td class="num ref">' + f(c[1]) + '</td><td class="num ref">' + f(t[1]) + '</td></tr>';
     };
-    // 뷔페·B2B(이바지 TotalRevenue)와 총 매출 = 예식 + 뷔페 + B2B. 스냅샷에 없으면 종전처럼 "본사 Tableau 집계" 표기.
-    var O = function (per, cate) { var x = SNAP.other && SNAP.other[per] && SNAP.other[per][cate]; return x ? { a: x.a.rev, p: x.p ? x.p.rev : null } : null; };
-    var T = function (per) {
-      var w = A(per, 'ALL'), bf = O(per, 'BUFFET'), bb = O(per, 'B2B'); if (!bf || !bb) return null;
-      var p = (w.p ? w.p.rev : 0) + (bf.p || 0) + (bb.p || 0);
-      return { a: (w.a.rev || 0) + bf.a + bb.a, p: p || null };
+    var wrow = function (label, key, f, h, kls) {
+      var c = A(m, h), t = A('YTD-' + y, h), fy = A('FY-' + y, h), done = (key === 'rev' || key === 'cnt');
+      return cell2([c.a[key], c.p ? c.p[key] : null], [t.a[key], t.p ? t.p[key] : null], f, kls, label, done ? [null, fy.p ? fy.p[key] : null] : null);
     };
-    var vrow = function (label, get, kls) {
-      if (yr) {
-        var t = get('YTD-' + y), f = get('FY-' + y); if (!t) return null;
-        var done = f && f.p ? t.a / f.p : null;
-        return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + fmt.mil(t.a) + '</td><td class="num ' + cls(vs(t.a, t.p)) + '">' + fmt.pct(vs(t.a, t.p)) + '</td><td class="dash">-</td>' +
-          '<td class="num ref">' + fmt.mil(t.p) + '</td><td class="num ref">' + fmt.mil(f ? f.p : null) + '</td><td class="num">' + (done === null ? '<span class="dash">-</span>' : fmt.rate(done)) + '</td></tr>';
-      }
-      var c = get(m), t2 = get('YTD-' + y); if (!c || !t2) return null;
-      return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + fmt.mil(c.a) + '</td><td class="num ' + cls(vs(c.a, c.p)) + '">' + fmt.pct(vs(c.a, c.p)) + '</td><td class="dash">-</td>' +
-        '<td class="num">' + fmt.mil(t2.a) + '</td><td class="num ' + cls(vs(t2.a, t2.p)) + '">' + fmt.pct(vs(t2.a, t2.p)) + '</td><td class="dash">-</td><td class="num ref">' + fmt.mil(c.p) + '</td><td class="num ref">' + fmt.mil(t2.p) + '</td></tr>';
-    };
-    var b = '<tbody><tr class="block"><td colspan="' + NC + '">베트남</td></tr>' +
-      (vrow('총 매출', T, 'sub') || '<tr class="sub hq"><td>총 매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계 (뷔페·B2B 포함)</td></tr>');
-    b += row('예식매출', 'rev', fmt.mil, 'ALL', 'sub') + row('예식건수', 'cnt', fmt.int, 'ALL', 'sub2') + row('건당 매출', 'per', fmt.mil, 'ALL', 'sub2');
-    var vb = vrow('뷔페매출', function (per) { return O(per, 'BUFFET'); }, 'sub'), v2 = vrow('B2B매출', function (per) { return O(per, 'B2B'); }, 'sub');
-    b += (vb && v2) ? vb + v2 : '<tr class="sub hq"><td>뷔페매출 · B2B매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계</td></tr>';
-    var um = UT(m, 'ALL'), uy = UT('YTD-' + y, 'ALL'), uf = UT('FY-' + y, 'ALL'), ul = String(y).slice(2) + '년 진도율(가동률)';
-    if (yr) b += '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(uy.a) + '</td><td class="num ' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(uy.p) + '</td><td class="num ref">' + fmt.rate(uf.p) + '</td><td></td></tr>';
-    else b += '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(um.a) + '</td><td class="num ' + cls(um.pp) + '">' + fmt.pp(um.pp) + '</td><td class="dash">-</td>' +
-      '<td class="num">' + fmt.rate(uy.a) + '</td><td class="num ' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(um.p) + '</td><td class="num ref">' + fmt.rate(uy.p) + '</td></tr>';
+    var S = stream(m), Tt = stream('YTD-' + y), Ff = stream('FY-' + y);
+    var b = '<tr class="block"><td colspan="' + NC + '">베트남</td></tr>';
+    b += S.T ? cell2(S.T, Tt.T, fmt.mil, 'sub', '총 매출', Ff.T) : '<tr class="sub hq"><td>총 매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계</td></tr>';
+    b += wrow('예식매출', 'rev', fmt.mil, 'ALL', 'sub') + wrow('예식건수', 'cnt', fmt.int, 'ALL', 'sub2') + wrow('건당 매출', 'per', fmt.mil, 'ALL', 'sub2');
+    if (S.B && S.X) b += cell2(S.B.rev, Tt.B.rev, fmt.mil, 'sub', '뷔페매출', Ff.B ? Ff.B.rev : null) + cell2(S.X.rev, Tt.X.rev, fmt.mil, 'sub', 'B2B매출', Ff.X ? Ff.X.rev : null);
+    else b += '<tr class="sub hq"><td>뷔페매출 · B2B매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계</td></tr>';
+    // 진도율(가동률): same-period weddings ÷ CAPA slots, plan likewise (vs = %p)
+    var U = function (per) { var x = A(per, 'ALL'); return [x.a.ut, x.p ? x.p.ut : null]; };
+    var um = U(m), uy = U('YTD-' + y), uf = U('FY-' + y), ul = String(y).slice(2) + '년 진도율(가동률)';
+    b += yr ? '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(uy[0]) + '</td><td class="num ' + cls(pp(uy[0], uy[1])) + '">' + fmt.pp(pp(uy[0], uy[1])) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(uy[1]) + '</td><td class="num ref">' + fmt.rate(uf[1]) + '</td><td></td></tr>'
+      : '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(um[0]) + '</td><td class="num ' + cls(pp(um[0], um[1])) + '">' + fmt.pp(pp(um[0], um[1])) + '</td><td class="dash">-</td><td class="num">' + fmt.rate(uy[0]) + '</td><td class="num ' + cls(pp(uy[0], uy[1])) + '">' + fmt.pp(pp(uy[0], uy[1])) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(um[1]) + '</td><td class="num ref">' + fmt.rate(uy[1]) + '</td></tr>';
     SNAP.capa.forEach(function (c) {
       if (String(c.year) === String(y)) return;
-      var cells = yr ? '<td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td></td>'
-        : '<td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>';
-      b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율(확보율)</td>' + cells + '</tr>';
+      b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율(확보율)</td><td class="num">' + fmt.rate(c.progress) + '</td>' + (yr ? '<td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td></td>' : '<td class="dash">-</td><td class="dash">-</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>') + '</tr>';
     });
     [['LABELLE', 'La Belle'], ['LECLAIR', 'Le Clair']].forEach(function (x) {
-      b += '<tr class="block"><td colspan="' + NC + '">' + x[1] + '</td></tr>' + row('예식매출', 'rev', fmt.mil, x[0], 'sub') + row('예식건수', 'cnt', fmt.int, x[0], 'sub2') + row('건당매출', 'per', fmt.mil, x[0], 'sub2') +
-        row('건당 식음매출', 'fb', fmt.mil, x[0], 'sub2') + row('건당 하객수', 'gst', fmt.int, x[0], 'sub2') + row('건당 식음객단가(원)', 'pp', fmt.int, x[0], 'sub2') + row('건당 부대매출', 'anc', fmt.mil, x[0], 'sub2');
+      b += '<tr class="block"><td colspan="' + NC + '">' + x[1] + '</td></tr>' + wrow('예식매출', 'rev', fmt.mil, x[0], 'sub') + wrow('예식건수', 'cnt', fmt.int, x[0], 'sub2') + wrow('건당매출', 'per', fmt.mil, x[0], 'sub2') +
+        wrow('건당 식음매출', 'fb', fmt.mil, x[0], 'sub2') + wrow('건당 하객수', 'gst', fmt.int, x[0], 'sub2') + wrow('건당 식음객단가(원)', 'pp', fmt.won, x[0], 'sub2') + wrow('건당 부대매출', 'anc', fmt.mil, x[0], 'sub2');
     });
-    document.getElementById('tpl').innerHTML = head + b + '</tbody>';
+    return table(head, b);
   }
 
-  function chart() {
-    var svg = document.getElementById('chart'), box = document.getElementById('chart-box'), tip = document.getElementById('tip');
-    var W = Math.max(300, box.clientWidth - 28), H = 262, pl = 52, pr = 8, pt = 26, pb = 30, h = state.hall;
-    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('height', H);
-    var data = SNAP.months.map(function (m) { var x = A(m, h); return { m: m, a: x.a.rev || 0, ac: x.a.cnt || 0, p: x.p ? x.p.rev : 0, pc: x.p ? x.p.cnt : 0 }; });
-    var max = Math.max.apply(null, data.map(function (d) { return Math.max(d.a, d.p) / 1e6; }).concat([1]));
-    var step = max > 600 ? 200 : max > 300 ? 100 : max > 100 ? 50 : 20, top = Math.ceil(max / step) * step;
-    var y = function (v) { return pt + (H - pt - pb) * (1 - v / top); }, bw = (W - pl - pr) / data.length, s = '';
-    for (var v = 0; v <= top; v += step) s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--rule)"/><text x="' + (pl - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="12" fill="var(--ink-3)">' + v.toLocaleString('ko-KR') + '</text>';
-    s += '<text x="' + pl + '" y="12" font-size="11" fill="var(--ink-3)">단위: 백만원</text>';
-    data.forEach(function (d, i) {
-      var cx = pl + bw * i + bw / 2, pw = Math.min(56, bw * 0.6), aw = pw * 0.46, sel = d.m === state.month, av = d.a / 1e6, pv = d.p / 1e6;
-      if (sel) s += '<rect x="' + (pl + bw * i + 2) + '" y="' + pt + '" width="' + (bw - 4) + '" height="' + (H - pt - pb) + '" fill="var(--sunk)"/>';
-      if (pv > 0) s += '<rect x="' + (cx - pw / 2) + '" y="' + y(pv) + '" width="' + pw + '" height="' + (y(0) - y(pv)) + '" fill="none" stroke="var(--plan)" stroke-width="1.5" rx="3"/>';
-      if (av > 0) s += '<rect x="' + (cx - aw / 2) + '" y="' + y(av) + '" width="' + aw + '" height="' + (y(0) - y(av)) + '" fill="var(--accent)" rx="3"/>';
-      s += '<text x="' + cx + '" y="' + (y(av) - 5) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">' + fmt.mil(d.a) + '</text>';
-      s += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" font-size="13" fill="' + (sel ? 'var(--ink)' : 'var(--ink-2)') + '" font-weight="' + (sel ? 700 : 400) + '">' + mLabel(d.m) + (isPartial(d.m) ? '*' : '') + '</text>';
-      s += '<rect class="hit" data-i="' + i + '" x="' + (pl + bw * i) + '" y="' + pt + '" width="' + bw + '" height="' + (H - pt - pb) + '" fill="transparent" style="cursor:pointer"/>';
-    });
-    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--ink-3)"/>';
-    svg.innerHTML = s;
-    Array.prototype.forEach.call(svg.querySelectorAll('.hit'), function (r) {
-      var d = data[+r.getAttribute('data-i')];
-      r.addEventListener('mousemove', function (e) {
-        var bb = box.getBoundingClientRect();
-        tip.innerHTML = '<b>' + mLabel(d.m) + (isPartial(d.m) ? ' (~' + +cut.slice(8) + '일)' : '') + ' · ' + hallName(h) + '</b><div class="row"><span>실적</span><span class="num">' + fmt.mil(d.a) + ' (' + d.ac + '건)</span></div>' +
-          '<div class="row"><span>계획</span><span class="num">' + fmt.mil(d.p) + ' (' + d.pc + '건)</span></div><div class="row"><span>계획 대비</span><span class="num ' + cls(vs(d.a, d.p)) + '">' + fmt.pct(vs(d.a, d.p)) + '</span></div>';
-        tip.hidden = false;
-        var lx = e.clientX - bb.left + 14; if (lx + 200 > bb.width) lx = e.clientX - bb.left - 200;
-        tip.style.left = lx + 'px'; tip.style.top = (e.clientY - bb.top - 10) + 'px';
+  // plan / actual / diff rows for a metric over months (+ total column)
+  function monthTable(rowsDef, totalKey) {
+    var cols = monthsAll.concat([totalKey]);
+    var head = '<thead><tr><th>구분</th><th></th>' + cols.map(function (m) { return '<th>' + (m === totalKey ? '합계' : mm(m) + (isPartial(m) ? '*' : '')) + '</th>'; }).join('') + '</tr></thead>';
+    var body = '';
+    rowsDef.forEach(function (r) {
+      var vals = cols.map(function (m) { return r.get(m) || [null, null]; });
+      var first = true;
+      [['계획', 1, 'ref'], ['실적', 0, ''], ['계획비', 2, '']].forEach(function (k) {
+        body += '<tr' + (first ? ' class="grp-first"' : '') + '><td>' + (first ? r.label : '') + '</td><td class="lbl2">' + k[0] + '</td>' + vals.map(function (v) {
+          if (k[1] === 2) { var d = r.diffPct ? pp(v[0], v[1]) : (v[0] === null || v[1] === null || v[1] === undefined ? null : v[0] - v[1]);
+            return '<td class="num ' + cls(d) + '">' + (r.diffPct ? fmt.pp(d) : fmt.diff(d, r.f)) + '</td>'; }
+          return '<td class="num ' + k[2] + '">' + r.f(v[k[1]]) + '</td>';
+        }).join('') + '</tr>';
+        first = false;
       });
-      r.addEventListener('mouseleave', function () { tip.hidden = true; });
-      r.addEventListener('click', function () { state.month = d.m; save(); render(); });
     });
+    return table(head, body);
   }
 
-  function board() {
-    if (isYear(state.month)) {
-      document.getElementById('board').innerHTML = '<div class="empty" style="grid-column:1/-1">슬롯 보드는 월을 선택하면 보입니다.</div>';
-      document.getElementById('board-counts').textContent = '';
-      return;
-    }
-    var m = state.month, rows = SNAP.board[m] || [], cols = [['LABELLE', '1T'], ['LABELLE', '2T'], ['LABELLE', '3T'], ['LECLAIR', '1T'], ['LECLAIR', '2T'], ['LECLAIR', '3T']];
+  V.sales = function (el) {
+    var m = state.month, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), S = stream(m), Y = stream('YTD-' + y);
+    var biz = [['예식', S.W.rev], ['뷔페', S.B ? S.B.rev : null], ['B2B', S.X ? S.X.rev : null], ['총합계', S.T]];
+    var h1 = '<thead><tr><th>' + scopeText(m) + '</th>' + biz.map(function (b) { return '<th>' + b[0] + '</th>'; }).join('') + '</tr></thead>';
+    var b1 = [['계획', function (v) { return '<td class="num ref">' + fmt.mil(v ? v[1] : null) + '</td>'; }], ['실적', function (v) { return '<td class="num">' + fmt.mil(v ? v[0] : null) + '</td>'; }],
+      ['계획비', function (v) { var d = v && v[1] !== null && v[1] !== undefined ? v[0] - v[1] : null; return '<td class="num ' + cls(d) + '">' + fmt.diff(d, fmt.mil) + '</td>'; }],
+      ['달성률', function (v) { return '<td class="num">' + (v && v[1] ? fmt.rate(v[0] / v[1]) : '-') + '</td>'; }]]
+      .map(function (r) { return '<tr><td>' + r[0] + '</td>' + biz.map(function (b) { return r[1](b[1]); }).join('') + '</tr>'; }).join('');
+    // 사업별 주요 지표 (엑셀 「사업별」 시트와 같은 지표)
+    var metricTable = function (title, rows) {
+      var hd = '<thead><tr><th>' + title + '</th><th class="ref">계획</th><th>실적</th><th>vs. Budget</th><th class="ref l">YTD 계획</th><th>YTD</th><th>vs. Budget</th></tr></thead>';
+      var bd = rows.map(function (r) {
+        var c = r[1], t = r[2], d1 = r[3] === 'pp' ? pp(c[0], c[1]) : vs(c[0], c[1]), d2 = r[3] === 'pp' ? pp(t[0], t[1]) : vs(t[0], t[1]), f = r[4], df = r[3] === 'pp' ? fmt.pp : fmt.pct;
+        return '<tr><td>' + r[0] + '</td><td class="num ref">' + f(c[1]) + '</td><td class="num">' + f(c[0]) + '</td><td class="num ' + cls(d1) + '">' + df(d1) + '</td><td class="num ref l">' + f(t[1]) + '</td><td class="num">' + f(t[0]) + '</td><td class="num ' + cls(d2) + '">' + df(d2) + '</td></tr>';
+      }).join('');
+      return table(hd, bd);
+    };
+    var W = metricTable('예식 (B2C)', [['매출(백만)', S.W.rev, Y.W.rev, '', fmt.mil], ['건수', S.W.cnt, Y.W.cnt, '', fmt.int], ['건당 매출(백만)', S.W.per, Y.W.per, '', fmt.mil],
+      ['건당 하객수', S.W.gst, Y.W.gst, '', fmt.int], ['식음객단가(원)', S.W.pp, Y.W.pp, '', fmt.won], ['진도율(가동률)', S.W.ut, Y.W.ut, 'pp', fmt.rate]]);
+    var Bt = S.B ? metricTable('뷔페 (이바지 다이닝)', [['매출(백만)', S.B.rev, Y.B.rev, '', fmt.mil], ['영업일수', S.B.cnt, Y.B.cnt, '', fmt.int], ['객수', S.B.gst, Y.B.gst, '', fmt.int],
+      ['일평균 매출(백만)', S.B.per, Y.B.per, '', fmt.mil], ['1인 객단가(원)', S.B.pg, Y.B.pg, '', fmt.won]]) : '';
+    var Xt = S.X ? metricTable('B2B (기업 행사)', [['매출(백만)', S.X.rev, Y.X.rev, '', fmt.mil], ['건수', S.X.cnt, Y.X.cnt, '', fmt.int], ['객수', S.X.gst, Y.X.gst, '', fmt.int],
+      ['건당 매출(백만)', S.X.per, Y.X.per, '', fmt.mil], ['1인 객단가(원)', S.X.pg, Y.X.pg, '', fmt.won]]) : '';
+    var get = function (key, kind) { return function (per) { var s = stream(per); var o = kind === 'T' ? s.T : (s[kind] ? s[kind][key] : null); return o; }; };
+    var rev = monthTable([{ label: '예식', get: get('rev', 'W'), f: fmt.mil }, { label: '뷔페', get: get('rev', 'B'), f: fmt.mil }, { label: 'B2B', get: get('rev', 'X'), f: fmt.mil }, { label: '총합계', get: get('', 'T'), f: fmt.mil }], YEAR);
+    var gsumT = function (per) { var s = stream(per); if (!s.B || !s.X) return null; var a = (s.W.gsum[0] || 0) + (s.B.gst[0] || 0) + (s.X.gst[0] || 0), p = (s.W.gsum[1] || 0) + (s.B.gst[1] || 0) + (s.X.gst[1] || 0); return [a, p || null]; };
+    var gst = monthTable([{ label: '예식', get: get('gsum', 'W'), f: fmt.int }, { label: '뷔페', get: get('gst', 'B'), f: fmt.int }, { label: 'B2B', get: get('gst', 'X'), f: fmt.int }, { label: '총합계', get: gsumT, f: fmt.int }], YEAR);
+    el.innerHTML = '<section>' + secHead('사업별 매출', '단위 백만원 · 계획비 = 실적 − 계획') + table(h1, b1) + '</section>' +
+      '<section>' + secHead('사업별 주요 지표', scopeText(m) + ' · YTD = ' + y + '년 누계') + '<div class="grid2">' + W + Bt + Xt + '</div></section>' +
+      '<section>' + secHead('월별 매출 추이', '단위 백만원 · * 진행 중인 달') + rev + '</section>' +
+      '<section>' + secHead('월별 객수 추이', '단위 명 · 예식은 하객 합계(성인 + 아동 ÷ 2, 기록 없는 건은 보증 인원)') + gst + '</section>';
+  };
+
+  V.annual = function (el) {
+    if (needBk(el)) return;
+    var bk = SNAP.bk, out = '';
+    bk.years.forEach(function (y) {
+      var H = bk.hall[y], money = y <= +cutY;
+      var hd = '<thead><tr><th>홀</th><th>확보건수</th><th>취소건수</th><th>계획건수</th><th>계획비</th><th>CAPA</th><th>확보 ÷ CAPA</th><th>확보 매출(백만)</th><th class="ref">계획 매출(백만)</th></tr></thead>';
+      var row = function (h, kls) {
+        var o = H[h], d = o.plan ? o.booked - o.plan : null;
+        return '<tr class="' + kls + '"><td>' + hallName(h) + '</td><td class="num">' + fmt.int(o.booked) + '</td><td class="num">' + fmt.int(o.cancelled) + '</td><td class="num">' + (o.plan ? fmt.int(o.plan) : '-') + '</td>' +
+          '<td class="num ' + cls(d) + '">' + fmt.diff(d, fmt.int) + '</td><td class="num">' + (o.capa ? fmt.int(o.capa) : '-') + '</td><td class="num">' + (o.capa ? fmt.rate(o.booked / o.capa) : '-') + '</td>' +
+          '<td class="num">' + (money ? fmt.mil(o.rev) : '-') + '</td><td class="num ref">' + (o.planrev ? fmt.mil(o.planrev) : '-') + '</td></tr>';
+      };
+      out += '<section>' + secHead(y + '년 예식', y === +cutY ? '확보 = 취소가 아닌 계약(예식 전 포함) · 확보 ÷ CAPA = 엑셀 FACT_CAPA 진도율(확보율)과 같은 산식' : '계획 미수령 · 연 CAPA 750 · 금액은 2027년 환율 확정 후 표시') +
+        table(hd, row('LABELLE', '') + row('LECLAIR', '') + row('ALL', 'tot')) + '</section>';
+    });
+    el.innerHTML = out;
+  };
+
+  V.contracts = function (el) {
+    if (needBk(el)) return;
+    var bk = SNAP.bk, y0 = bk.years[0], y1 = bk.years[1];
+    var hd = '<thead><tr><th rowspan="2">기간 (계약일 기준)</th><th class="grp" colspan="2">' + y0 + '년 예식</th><th class="grp" colspan="2">' + y1 + '년 예식</th></tr>' +
+      '<tr><th class="l">계약건수</th><th>계약매출(백만)</th><th class="l">계약건수</th><th>계약매출(백만)</th></tr></thead>';
+    var d = function (s) { return s.slice(2).replace(/-/g, '.'); };
+    var bd = bk.daily.map(function (r) {
+      return '<tr' + (r.key === 'year' ? ' class="tot"' : '') + '><td>' + r.label + ' <span class="note">(' + d(r.from) + (r.from !== r.to ? '~' + d(r.to) : '') + ')</span></td><td class="num l">' + fmt.int(r[y0].cnt) + '</td><td class="num">' + fmt.mil(r[y0].rev) + '</td>' +
+        '<td class="num l">' + fmt.int(r[y1].cnt) + '</td><td class="num">-</td></tr>';
+    }).join('');
+    // 누적 계약건수 (계약월)
+    var ms = []; Object.keys(bk.signed).forEach(function (y) { Object.keys(bk.signed[y]).forEach(function (m) { if (ms.indexOf(m) < 0) ms.push(m); }); }); ms.sort();
+    var hd2 = '<thead><tr><th>계약월</th>' + ms.map(function (m) { return '<th>' + m.slice(2).replace('-', '.') + '</th>'; }).join('') + '</tr></thead>';
+    var bd2 = bk.years.map(function (y) {
+      var acc = 0, cells = ms.map(function (m) { acc += bk.signed[y][m] || 0; return '<td class="num">' + (acc ? fmt.int(acc) : '-') + '</td>'; }).join('');
+      return '<tr><td>' + y + '년 예식 누적</td>' + cells + '</tr>';
+    }).join('');
+    el.innerHTML = '<section>' + secHead('기간별 계약 현황', '현재 유효 계약(취소 제외) · 당주 = 이번 주 월요일부터 · 내년 예식 금액은 2027년 환율 확정 후 표시') + table(hd, bd) + '</section>' +
+      '<section>' + secHead('누적 계약건수', '계약일 월 기준 누적 · 예식 연도별') + table(hd2, bd2) + '</section>';
+  };
+
+  V.booking = function (el) {
+    if (needBk(el)) return;
+    var bk = SNAP.bk, y = state.year, h = state.hall, M = bk.month[y], money = y <= +cutY;
+    // 슬롯타입별
+    var order = ['토g', '일g', '토non', '일non', 'non', '운영 외'];
+    var st = bk.slot[y] || {}, keys = Object.keys(st).sort(function (a, b) { return (order.indexOf(a) < 0 ? 99 : order.indexOf(a)) - (order.indexOf(b) < 0 ? 99 : order.indexOf(b)); });
+    var hd = '<thead><tr><th>슬롯타입</th><th>확보</th><th>계획</th><th>계획비</th><th>CAPA</th><th>확보 ÷ CAPA</th></tr></thead>';
+    var tot = { booked: 0, plan: 0, capa: 0 };
+    var bd = keys.map(function (k) {
+      var o = st[k][h]; tot.booked += o.booked; tot.plan += o.plan; tot.capa += o.capa; var d = o.plan || o.capa ? o.booked - o.plan : null;
+      return '<tr><td>' + k + '</td><td class="num">' + fmt.int(o.booked) + '</td><td class="num">' + fmt.int(o.plan) + '</td><td class="num ' + cls(d) + '">' + fmt.diff(d, fmt.int) + '</td><td class="num">' + (o.capa ? fmt.int(o.capa) : '-') + '</td><td class="num">' + (o.capa ? fmt.rate(o.booked / o.capa) : '-') + '</td></tr>';
+    }).join('');
+    bd += '<tr class="tot"><td>합계</td><td class="num">' + fmt.int(tot.booked) + '</td><td class="num">' + fmt.int(tot.plan) + '</td><td class="num ' + cls(tot.booked - tot.plan) + '">' + fmt.diff(tot.booked - tot.plan, fmt.int) + '</td><td class="num">' + fmt.int(tot.capa) + '</td><td class="num">' + (tot.capa ? fmt.rate(tot.booked / tot.capa) : '-') + '</td></tr>';
+    var slotSec = keys.length ? '<section>' + secHead('슬롯타입별 확보', y + '년 예식 · ' + hallName(h) + ' · 슬롯타입 = 본사 사업계획(토g·일g = 성수기 3T, 토non·일non, non = 금 3T·공휴일) · 운영 외 = 월~목 예식') + table(hd, bd) + '</section>'
+      : '<section>' + secHead('슬롯타입별 확보', y + '년 예식') + '<p class="note">' + y + '년 슬롯별 사업계획 수령 전이라 슬롯타입이 없습니다.</p></section>';
+    // 예식월별
+    var ms = Object.keys(M).sort(), T = { booked: 0, plan: 0, capa: 0, rev: 0, planrev: 0 };
+    ms.forEach(function (k) { var o = M[k][h]; Object.keys(T).forEach(function (f) { T[f] += o[f] || 0; }); });
+    var cols = ms.concat(['T']), cell = function (k) { return k === 'T' ? T : M[k][h]; };
+    var hd2 = '<thead><tr><th>예식월</th>' + ms.map(function (k) { return '<th>' + mm(k) + '</th>'; }).join('') + '<th>합계</th></tr></thead>';
+    var line = function (label, f, kls) { return '<tr' + (kls ? ' class="' + kls + '"' : '') + '><td>' + label + '</td>' + cols.map(function (k) { return f(cell(k)); }).join('') + '</tr>'; };
+    var bd2 = line('계획', function (o) { return '<td class="num ref">' + (o.plan ? fmt.int(o.plan) : (o.capa ? '0' : '-')) + '</td>'; }) +
+      line('확보', function (o) { return '<td class="num">' + (o.booked ? fmt.int(o.booked) : (o.capa ? '0' : '-')) + '</td>'; }) +
+      line('계획비', function (o) { var d = o.capa ? o.booked - o.plan : null; return '<td class="num ' + cls(d) + '">' + fmt.diff(d, fmt.int) + '</td>'; }) +
+      line('CAPA', function (o) { return '<td class="num ref">' + (o.capa ? fmt.int(o.capa) : '-') + '</td>'; }) +
+      line('확보 ÷ CAPA', function (o) { return '<td class="num">' + (o.capa ? fmt.rate(o.booked / o.capa) : '-') + '</td>'; }) +
+      (money ? line('확보 매출(백만)', function (o) { return '<td class="num">' + (o.booked ? fmt.mil(o.rev) : '-') + '</td>'; }) +
+        line('계획 매출(백만)', function (o) { return '<td class="num ref">' + (o.planrev ? fmt.mil(o.planrev) : '-') + '</td>'; }) : '');
+    el.innerHTML = slotSec + '<section>' + secHead('예식월별 확보 현황', y + '년 예식 · ' + hallName(h) + ' · 확보 = 취소가 아닌 계약(예식 전 포함)' + (money ? '' : ' · 금액은 2027년 환율 확정 후')) + table(hd2, bd2) + '</section>';
+  };
+
+  V.slots = function (el) {
+    var m = state.slotmonth, rows = (SNAP.board || {})[m] || [], cols = [['LABELLE', '1T'], ['LABELLE', '2T'], ['LABELLE', '3T'], ['LECLAIR', '1T'], ['LECLAIR', '2T'], ['LECLAIR', '3T']];
     var by = {}, days = [];
     rows.forEach(function (r) { by[r[0] + '|' + r[1] + '|' + r[2]] = r; if (days.indexOf(r[0]) < 0) days.push(r[0]); });
     days.sort();
@@ -291,17 +422,37 @@ function boot(SNAP) {
         html += '<div class="cell' + (i === 0 || i === 3 ? ' l' : '') + '"><span class="' + k + '"></span></div>';
       });
     });
-    document.getElementById('board').innerHTML = days.length ? html : '<div class="empty" style="grid-column:1/-1">이 달에는 운영 슬롯이 없습니다.</div>';
-    document.getElementById('board-counts').textContent = mLabel(m) + (isPartial(m) ? ' (~' + +cut.slice(8) + '일 예식까지)' : '') + ' · 운영 슬롯 ' + nS + ' · 계획 예식 ' + nP + ' · 실제 예식 ' + nA + ' (계획 슬롯 적중 ' + nH + ')' + (nB ? ' · 계약 확보 ' + nB : '');
-  }
+    el.innerHTML = '<section>' + secHead(+m.slice(5) + '월 슬롯 예약현황', hallName(state.hall) + ' · 운영 슬롯 ' + nS + ' · 계획 예식 ' + nP + ' · 실제 예식 ' + nA + ' (계획 슬롯 적중 ' + nH + ') · 계약 확보(예식 전) ' + nB) +
+      '<div class="board-legend"><span><i class="slot"></i>운영 슬롯 · 계획 없음</span><span><i class="slot planned"></i>계획 예식</span><span><i class="slot actual"></i>실제 예식</span><span><i class="slot actual unplanned"></i>계획 없던 슬롯의 예식</span><span><i class="slot booked"></i>계약 확보(예식 전)</span></div>' +
+      '<div class="board-wrap"><div class="board">' + (days.length ? html : '<div class="empty" style="grid-column:1/-1">이 달에는 운영 슬롯이 없습니다.</div>') + '</div></div></section>';
+  };
+
+  V.guests = function (el) {
+    var m = state.month, h = state.hall, yr = isYear(m), y = yr ? cutY : m.slice(0, 4), c = A(m, h);
+    var g = function (k) { return [c.a[k], c.p ? c.p[k] : null]; };
+    var tile = function (lbl, v, unit, f) {
+      var d = vs(v[0], v[1]);
+      return '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val num">' + f(v[0]) + '<small>' + unit + '</small></div><div class="vs num">계획 ' + f(v[1]) + ' · <span class="' + cls(d) + '">' + fmt.pct(d) + '</span></div></div>';
+    };
+    var k = '<div class="kpis">' + tile('예식건수', g('cnt'), '건', fmt.int) + tile('건당 매출', g('per'), '백만원', fmt.mil) + tile('총 하객수', g('gsum'), '명', fmt.int) + tile('건당 하객수', g('gst'), '명', fmt.int) + '</div>' +
+      '<div class="kpis">' + tile('식음매출', g('fbsum'), '백만원', fmt.mil) + tile('식음객단가', g('pp'), '원', fmt.won) + tile('부대매출', g('ancsum'), '백만원', fmt.mil) + tile('건당 부대매출', g('anc'), '백만원', fmt.mil) + '</div>';
+    var get = function (key) { return function (per) { var x = A(per, h); return [x.a[key], x.p ? x.p[key] : null]; }; };
+    var t = monthTable([{ label: '건당 하객수(명)', get: get('gst'), f: fmt.int }, { label: '식음객단가(원)', get: get('pp'), f: fmt.won }, { label: '건당 식음매출(백만)', get: get('fb'), f: fmt.mil },
+      { label: '건당 부대매출(백만)', get: get('anc'), f: fmt.mil }, { label: '건당 매출(백만)', get: get('per'), f: fmt.mil }], YEAR);
+    el.innerHTML = '<section>' + secHead('예식 객수·객단가', scopeText(m) + ' · ' + hallName(h) + ' · 부대 = 부대비용 + 애드온(상품)') + k + '</section>' +
+      '<section>' + secHead('예식월별 현황', hallName(h) + ' · 합계 = ' + cutY + '년 누계 · 계획비 = 실적 − 계획') + t + '</section>';
+  };
 
   function render() {
-    seg('seg-month', SNAP.months.map(function (m) { return [m, mLabel(m) + (isPartial(m) ? '*' : '')]; }).concat([[YEAR, mLabel(YEAR)]]), 'month');
-    seg('seg-hall', HALLS, 'hall');
-    kpis(); template(); chart(); board();
+    var v = VIEWS.filter(function (x) { return x[0] === state.view; })[0] || VIEWS[0];
+    Array.prototype.forEach.call(nav.querySelectorAll('button'), function (b) { b.setAttribute('aria-current', b.id === 'nav-' + v[0] ? 'page' : 'false'); });
+    document.getElementById('title').textContent = v[1];
+    document.title = 'The Chapel Vietnam · ' + v[1];
+    controls(v[2]);
+    V[v[0]](document.getElementById('view'));
   }
+  window.addEventListener('hashchange', function () { var k = (location.hash || '').replace('#', ''); if (VIEWS.some(function (v) { return v[0] === k; })) { state.view = k; render(); } });
   render();
-  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(chart, 120); });
 }
 (function () {
   var API = 'https://script.google.com/macros/s/AKfycbxar4AniJo0tM44LzhhTI4u0OB1KGHC7oP9Ytl7YJKRZmtRdXOGFkD7YykjtHtYvg_b/exec';
