@@ -119,6 +119,10 @@ function boot(SNAP) {
   };
   var cls = function (v) { return v === null || v === undefined ? '' : (v < 0 ? 'neg' : 'pos'); };
   var capa = function (y) { return SNAP.capa.filter(function (c) { return String(c.year) === String(y); })[0]; };
+  var UT = function (per, h) {
+    var x = A(per, h), a = x.a.ut, p = x.p ? x.p.ut : null;
+    return { a: a === undefined ? null : a, p: p === undefined ? null : p, capa: x.a.capa || 0, pp: (a !== null && a !== undefined && p !== null && p !== undefined) ? (a - p) * 100 : null };
+  };
 
   app.innerHTML =
     '<header><div><h1>The Chapel Vietnam</h1><div class="meta">베트남 예식(B2C) · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' · 마지막 갱신 ' + SNAP.asOf + ' (30분마다)</div></div>' +
@@ -132,8 +136,8 @@ function boot(SNAP) {
     '<div class="board-legend"><span><i class="slot"></i>운영 슬롯 · 계획 없음</span><span><i class="slot planned"></i>계획 예식</span><span><i class="slot actual"></i>실제 예식</span><span><i class="slot actual unplanned"></i>계획 없던 슬롯의 예식</span><span><i class="slot booked"></i>계약 확보(예식 전)</span></div>' +
     '<div class="board-wrap"><div class="board" id="board"></div></div></section>' +
     '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 예식 VAT 8%, 하나은행 2025년 연평균 최초 고시 매매기준율 100 VND = 5.47원.</div>' +
-    '<div>계획: 본사 26년 슬롯별 사업계획(472슬롯). 진도율 = 확보 슬롯 ÷ 연 CAPA, 계획 진도율 = 연간 계획 건수 ÷ 연 CAPA.</div>' +
-    '<div>하객: 실제 하객 기록이 있는 예식은 실제(성인+아동), 없는 예식은 보증 인원(성인). 집계 정의는 지표 정의서를 따릅니다.</div></footer>';
+    '<div>계획: 본사 26년 슬롯별 사업계획(472슬롯). 진도율(가동률) = 같은 기간의 예식 수 ÷ CAPA 슬롯 수, 계획도 같은 기간의 계획 예식 ÷ CAPA(차이는 %p). 다음 연도는 확보 ÷ 연 CAPA.</div>' +
+    '<div>하객: 본사 정산인원 정의(성인 + 아동 ÷ 2). 실제 하객 기록이 없는 예식은 보증 인원(성인). 집계 정의는 지표 정의서를 따릅니다.</div></footer>';
 
   function seg(id, items, key) {
     var el = document.getElementById(id); el.innerHTML = '';
@@ -160,9 +164,11 @@ function boot(SNAP) {
         '<div class="vs num">' + (yr ? '누계 계획 ' : '계획 ') + f(p) + ' · <span class="' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</span></div>' +
         '<div class="ytd num">' + last + '</div></div>';
     };
-    var prog = c ? '<div class="kpi"><div class="lbl">' + y.slice(2) + '년 진도율</div><div class="val num">' + fmt.rate(c.progress) + '</div>' +
-      '<div class="vs num">계획 ' + fmt.rate(c.plan_progress) + ' · <span class="' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</span></div>' +
-      '<div class="ytd num">확보 ' + c.booked + ' / CAPA ' + c.capa + '</div></div>' : '';
+    // 진도율(가동률) = 같은 기간의 예식 수 ÷ CAPA 슬롯 수, 계획도 같은 기간 (본사 LOGIC, 2026-11-06)
+    var u = UT(m, h), uy = UT('YTD-' + y, h);
+    var prog = u.capa ? '<div class="kpi"><div class="lbl">' + y.slice(2) + '년 진도율(가동률)</div><div class="val num">' + fmt.rate(u.a) + '</div>' +
+      '<div class="vs num">' + (yr ? '누계 계획 ' : '계획 ') + fmt.rate(u.p) + ' · <span class="' + cls(u.pp) + '">' + fmt.pp(u.pp) + '</span></div>' +
+      '<div class="ytd num">' + (yr ? (c ? '연간 확보 ' + c.booked + ' / CAPA ' + c.capa : '') : '누계 ' + fmt.rate(uy.a) + ' / 계획 ' + fmt.rate(uy.p) + ' · <span class="' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</span>') + '</div></div>' : '';
     document.getElementById('kpis').innerHTML = tile('예식매출', 'rev', '백만원', fmt.mil) + tile('예식건수', 'cnt', '건', fmt.int) + tile('건당 매출', 'per', '백만원', fmt.mil) + prog;
   }
 
@@ -186,10 +192,15 @@ function boot(SNAP) {
     var b = '<tbody><tr class="block"><td colspan="' + NC + '">베트남</td></tr><tr class="sub hq"><td>총 매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계 (뷔페·B2B 포함)</td></tr>';
     b += row('예식매출', 'rev', fmt.mil, 'ALL', 'sub') + row('예식건수', 'cnt', fmt.int, 'ALL', 'sub2') + row('건당 매출', 'per', fmt.mil, 'ALL', 'sub2');
     b += '<tr class="sub hq"><td>뷔페매출 · B2B매출</td><td colspan="' + (NC - 1) + '" style="text-align:left">본사 Tableau 집계</td></tr>';
+    var um = UT(m, 'ALL'), uy = UT('YTD-' + y, 'ALL'), uf = UT('FY-' + y, 'ALL'), ul = String(y).slice(2) + '년 진도율(가동률)';
+    if (yr) b += '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(uy.a) + '</td><td class="num ' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(uy.p) + '</td><td class="num ref">' + fmt.rate(uf.p) + '</td><td></td></tr>';
+    else b += '<tr class="sub"><td>' + ul + '</td><td class="num">' + fmt.rate(um.a) + '</td><td class="num ' + cls(um.pp) + '">' + fmt.pp(um.pp) + '</td><td class="dash">-</td>' +
+      '<td class="num">' + fmt.rate(uy.a) + '</td><td class="num ' + cls(uy.pp) + '">' + fmt.pp(uy.pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(um.p) + '</td><td class="num ref">' + fmt.rate(uy.p) + '</td></tr>';
     SNAP.capa.forEach(function (c) {
-      if (yr) { b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="num ' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td><td></td></tr>'; return; }
-      b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="num ' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</td><td class="dash">-</td>' +
-        '<td class="num">' + fmt.rate(c.progress) + '</td><td class="num ' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td></tr>';
+      if (String(c.year) === String(y)) return;
+      var cells = yr ? '<td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td></td>'
+        : '<td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td><td class="dash">-</td>';
+      b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율(확보율)</td>' + cells + '</tr>';
     });
     [['LABELLE', 'La Belle'], ['LECLAIR', 'Le Clair']].forEach(function (x) {
       b += '<tr class="block"><td colspan="' + NC + '">' + x[1] + '</td></tr>' + row('예식매출', 'rev', fmt.mil, x[0], 'sub') + row('예식건수', 'cnt', fmt.int, x[0], 'sub2') + row('건당매출', 'per', fmt.mil, x[0], 'sub2') +
