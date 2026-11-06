@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="referrer" content="no-referrer">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>더채플 예식 실적</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Carlito:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap">
+<style>
+/* Public HQ view (Web.js → doGet). Aggregates only: no contract ids, no per-contract money. White, ink-only; colour for actuals and shortfalls. */
+:root{
+  --bg:#ffffff; --surface:#ffffff; --sunk:#f6f7f8; --ink:#16181b; --ink-2:#555b63; --ink-3:#868c94;
+  --rule:#e4e6e9; --rule-2:#cfd3d8; --accent:#1f5fa8; --accent-soft:#e3ecf7; --neg:#b42318; --plan:#6b7078;
+  --font:"Calibri","Carlito","Noto Sans KR","Malgun Gothic","Apple SD Gothic Neo",sans-serif;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:15px;line-height:1.5;padding:28px max(16px,env(safe-area-inset-right,0px)) 56px max(16px,env(safe-area-inset-left,0px))}
+.wrap{max-width:1120px;margin:0 auto;display:grid;gap:36px}
+h1{font-size:26px;font-weight:700;margin:0;letter-spacing:-.01em}
+h2{font-size:17px;font-weight:700;margin:0}
+.meta{color:var(--ink-2);font-size:13px;margin-top:4px}
+.num{font-variant-numeric:tabular-nums}
+header{display:grid;gap:16px;border-bottom:2px solid var(--ink);padding-bottom:18px}
+.controls{display:flex;flex-wrap:wrap;gap:12px 28px;align-items:center}
+.ctl{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+.ctl>span{font-size:12px;color:var(--ink-3);letter-spacing:.06em}
+.seg{display:inline-flex;flex-wrap:wrap;border:1px solid var(--rule-2);border-radius:6px;overflow:hidden}
+.seg button{font:inherit;font-size:14px;background:var(--surface);color:var(--ink-2);border:0;border-left:1px solid var(--rule-2);padding:6px 12px;cursor:pointer}
+.seg button:first-child{border-left:0}
+.seg button[aria-pressed="true"]{background:var(--ink);color:var(--bg);font-weight:700}
+.seg button:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+section{display:grid;gap:14px}
+.sec-head{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;border-bottom:1px solid var(--rule);padding-bottom:8px}
+.sec-head p{margin:0;color:var(--ink-3);font-size:13px}
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));border:1px solid var(--rule);border-radius:8px;overflow:hidden}
+.kpi{padding:16px 18px;border-left:1px solid var(--rule);display:grid;gap:6px;min-width:0}
+.kpi:first-child{border-left:0}
+.kpi .lbl{font-size:13px;color:var(--ink-2)}
+.kpi .val{font-size:30px;font-weight:700;line-height:1.1}
+.kpi .val small{font-size:15px;font-weight:400;color:var(--ink-2);margin-left:3px}
+.kpi .vs{font-size:13px;color:var(--ink-2)}
+.kpi .ytd{font-size:13px;color:var(--ink-3);border-top:1px dashed var(--rule);padding-top:6px}
+.neg{color:var(--neg)} .pos{color:var(--accent)}
+.tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
+th{font-weight:700;color:var(--ink-2);background:var(--sunk);font-size:13px}
+td:first-child,th:first-child{text-align:left}
+tr.block td{font-weight:700;background:var(--sunk)}
+tr.sub td:first-child{padding-left:24px;color:var(--ink-2)}
+tr.sub2 td:first-child{padding-left:40px;color:var(--ink-2)}
+tr.hq td{color:var(--ink-3)}
+td.dash{color:var(--ink-3);text-align:center}
+td.ref,th.ref{color:var(--ink-3)}
+tbody tr:last-child td{border-bottom:0}
+.chart-box{position:relative;border:1px solid var(--rule);border-radius:8px;padding:14px 14px 6px}
+.legend{display:flex;gap:18px;font-size:13px;color:var(--ink-2);flex-wrap:wrap}
+.key{display:inline-flex;align-items:center;gap:6px}
+.sw{width:14px;height:10px;border-radius:2px;display:inline-block}
+.sw.act{background:var(--accent)} .sw.plan{border:2px solid var(--plan)}
+svg text{font-family:var(--font)}
+.tip{position:absolute;pointer-events:none;background:var(--surface);border:1px solid var(--rule-2);border-radius:6px;padding:8px 10px;font-size:13px;box-shadow:0 4px 14px rgba(0,0,0,.12);min-width:170px}
+.tip b{display:block;margin-bottom:2px}
+.tip .row{display:flex;justify-content:space-between;gap:16px;color:var(--ink-2)}
+.board-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
+.board{display:grid;grid-template-columns:112px repeat(6,minmax(56px,1fr));min-width:520px;font-size:13px}
+.board>div{padding:6px 8px;border-bottom:1px solid var(--rule)}
+.board .hd{background:var(--sunk);color:var(--ink-2);font-weight:700;text-align:center}
+.board .hd.first{text-align:left}
+.board .hall{grid-column:span 3;border-left:1px solid var(--rule-2)}
+.board .day{color:var(--ink-2);white-space:nowrap}
+.board .day small{color:var(--ink-3);margin-left:4px}
+.cell{display:flex;justify-content:center;align-items:center}
+.cell.l{border-left:1px solid var(--rule-2)}
+.slot{display:inline-block;width:100%;max-width:48px;height:20px;border-radius:4px;border:1px dashed var(--rule-2)}
+.slot.planned{border:1.5px solid var(--plan)}
+.slot.actual{background:var(--accent);border:0}
+.slot.actual.unplanned{box-shadow:inset 0 0 0 2px var(--surface),0 0 0 1.5px var(--accent)}
+.slot.booked{background:var(--accent-soft);border:1.5px solid var(--accent)}
+.slot.na{border:0}
+.board-legend{display:flex;gap:18px;flex-wrap:wrap;font-size:13px;color:var(--ink-2);align-items:center}
+.board-legend .slot{width:28px;height:14px;vertical-align:middle;margin-right:6px}
+.empty{padding:40px 16px;text-align:center;color:var(--ink-2)}
+footer{color:var(--ink-3);font-size:12.5px;display:grid;gap:4px;border-top:1px solid var(--rule);padding-top:14px}
+@media (max-width:520px){.kpi{border-left:0;border-top:1px solid var(--rule)}.kpi:first-child{border-top:0}.kpi .val{font-size:26px}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+/* boot(SNAP) draws the page from one aggregate snapshot. Apps Script inlines it below; the GitHub Pages copy
+   (tools/build-pages.js) fetches it from the web app's JSON endpoint instead. */
+function boot(SNAP) {
+  var app = document.getElementById('app');
+  if (!SNAP) {
+    app.innerHTML = '<div class="empty"><h1>더채플 예식 실적</h1><p>이 링크는 올바르지 않거나 만료되었습니다. 최신 링크를 담당자에게 요청해 주세요.</p></div>';
+    return;
+  }
+  var HALLS = [['ALL', '전체'], ['LABELLE', 'La Belle'], ['LECLAIR', 'Le Clair']];
+  var hallName = function (h) { return HALLS.filter(function (x) { return x[0] === h; })[0][1]; };
+  var cut = SNAP.cutoff, cutY = cut.slice(0, 4);
+  var state = { month: SNAP.months[SNAP.months.length - 1], hall: 'ALL' };
+  try { var sv = JSON.parse(localStorage.getItem('hq-view') || '{}'); if (SNAP.months.indexOf(sv.month) >= 0) state.month = sv.month; if (['ALL', 'LABELLE', 'LECLAIR'].indexOf(sv.hall) >= 0) state.hall = sv.hall; } catch (e) {}
+  function save() { try { localStorage.setItem('hq-view', JSON.stringify(state)); } catch (e) {} }
+  var mLabel = function (m) { return +m.slice(5) + '월'; };
+  var isPartial = function (m) { return m === cut.slice(0, 7); };
+  var A = function (per, h) { return (SNAP.agg[per] || {})[h] || { a: {}, p: null }; };
+  var vs = function (a, p) { return (a === null || a === undefined || !p) ? null : a / p - 1; };
+  var fmt = {
+    mil: function (v) { return v === null || v === undefined ? '-' : (v / 1e6).toLocaleString('ko-KR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }); },
+    int: function (v) { return v === null || v === undefined ? '-' : Math.round(v).toLocaleString('ko-KR'); },
+    pct: function (v) { return v === null || v === undefined ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v * 100).toFixed(1) + '%'; },
+    pp: function (v) { return v === null || v === undefined ? '-' : (v >= 0 ? '+' : '−') + Math.abs(v).toFixed(1) + '%p'; },
+    rate: function (v) { return v === null || v === undefined ? '-' : (v * 100).toFixed(1) + '%'; }
+  };
+  var cls = function (v) { return v === null || v === undefined ? '' : (v < 0 ? 'neg' : 'pos'); };
+  var capa = function (y) { return SNAP.capa.filter(function (c) { return String(c.year) === String(y); })[0]; };
+
+  app.innerHTML =
+    '<header><div><h1>더채플 예식 실적</h1><div class="meta">베트남 예식(B2C) · 공급가(VAT 제외) · 원화 · 데이터 기준 ' + cut + ' · 마지막 갱신 ' + SNAP.asOf + ' (30분마다)</div></div>' +
+    '<div class="controls"><div class="ctl"><span>기준월</span><div class="seg" id="seg-month" role="group" aria-label="기준월"></div></div>' +
+    '<div class="ctl"><span>홀</span><div class="seg" id="seg-hall" role="group" aria-label="홀"></div></div></div></header>' +
+    '<section><div class="sec-head"><h2>요약</h2><p id="kpi-scope"></p></div><div class="kpis" id="kpis"></div></section>' +
+    '<section><div class="sec-head"><h2>본사 보고 양식</h2><p>템플릿 베트남 블록과 같은 행·열 · 단위 건, 명, 백만원(객단가 원) · 홀 필터와 무관</p></div><div class="tbl-wrap"><table id="tpl"></table></div></section>' +
+    '<section><div class="sec-head"><h2>월별 예식매출 · 실적 대비 계획</h2><div class="legend"><span class="key"><i class="sw act"></i>실적</span><span class="key"><i class="sw plan"></i>계획</span></div></div>' +
+    '<div class="chart-box" id="chart-box"><svg id="chart" role="img" aria-label="월별 예식매출 실적과 계획" width="100%"></svg><div class="tip" id="tip" hidden></div></div></section>' +
+    '<section><div class="sec-head"><h2>슬롯별 계획 대비</h2><p id="board-counts"></p></div>' +
+    '<div class="board-legend"><span><i class="slot"></i>운영 슬롯 · 계획 없음</span><span><i class="slot planned"></i>계획 예식</span><span><i class="slot actual"></i>실제 예식</span><span><i class="slot actual unplanned"></i>계획 없던 슬롯의 예식</span><span><i class="slot booked"></i>계약 확보(예식 전)</span></div>' +
+    '<div class="board-wrap"><div class="board" id="board"></div></div></section>' +
+    '<footer><div>환산: 원천 VND(부가세 포함) ÷ (1 + VAT율) × 환율 — 2026년 예식 VAT 8%, 하나은행 2025년 연평균 최초 고시 매매기준율 100 VND = 5.47원.</div>' +
+    '<div>계획: 본사 26년 슬롯별 사업계획(472슬롯). 진도율 = 확보 슬롯 ÷ 연 CAPA, 계획 진도율 = 연간 계획 건수 ÷ 연 CAPA.</div>' +
+    '<div>하객: 실제 하객 기록이 있는 예식은 실제(성인+아동), 없는 예식은 보증 인원(성인). 집계 정의는 지표 정의서를 따릅니다.</div></footer>';
+
+  function seg(id, items, key) {
+    var el = document.getElementById(id); el.innerHTML = '';
+    items.forEach(function (it) {
+      var b = document.createElement('button'); b.type = 'button'; b.id = id + '-' + it[0]; b.textContent = it[1];
+      b.setAttribute('aria-pressed', state[key] === it[0]);
+      b.onclick = function () { state[key] = it[0]; save(); render(); };
+      el.appendChild(b);
+    });
+  }
+
+  function kpis() {
+    var m = state.month, h = state.hall, y = m.slice(0, 4), cur = A(m, h), ytd = A('YTD-' + y, h), c = capa(y);
+    document.getElementById('kpi-scope').textContent = mLabel(m) + (isPartial(m) ? ' (1일~' + +cut.slice(8) + '일)' : '') + ' · ' + hallName(h) + ' · 아래 줄은 ' + y + '년 누계(~' + (y === cutY ? cut.slice(5).replace('-', '/') : '12/31') + ')';
+    var tile = function (lbl, key, unit, f) {
+      var a = cur.a[key], p = cur.p ? cur.p[key] : null, ya = ytd.a[key], yp = ytd.p ? ytd.p[key] : null;
+      return '<div class="kpi"><div class="lbl">' + lbl + '</div><div class="val num">' + f(a) + '<small>' + unit + '</small></div>' +
+        '<div class="vs num">계획 ' + f(p) + ' · <span class="' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</span></div>' +
+        '<div class="ytd num">누계 ' + f(ya) + ' / 계획 ' + f(yp) + ' · <span class="' + cls(vs(ya, yp)) + '">' + fmt.pct(vs(ya, yp)) + '</span></div></div>';
+    };
+    var prog = c ? '<div class="kpi"><div class="lbl">' + y.slice(2) + '년 진도율</div><div class="val num">' + fmt.rate(c.progress) + '</div>' +
+      '<div class="vs num">계획 ' + fmt.rate(c.plan_progress) + ' · <span class="' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</span></div>' +
+      '<div class="ytd num">확보 ' + c.booked + ' / CAPA ' + c.capa + '</div></div>' : '';
+    document.getElementById('kpis').innerHTML = tile('예식매출', 'rev', '백만원', fmt.mil) + tile('예식건수', 'cnt', '건', fmt.int) + tile('건당 매출', 'per', '백만원', fmt.mil) + prog;
+  }
+
+  function template() {
+    var m = state.month, y = m.slice(0, 4), L = mLabel(m);
+    var head = '<thead><tr><th>구분</th><th>' + L + ' 누계</th><th>vs. Budget</th><th>YoY</th><th>YTD 합계</th><th>vs. Budget</th><th>YoY</th><th class="ref">' + L + ' 계획</th><th class="ref">YTD 계획</th></tr></thead>';
+    var row = function (label, key, f, h, kls) {
+      var c = A(m, h), t = A('YTD-' + y, h), a = c.a[key], p = c.p ? c.p[key] : null, ya = t.a[key], yp = t.p ? t.p[key] : null;
+      return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(a) + '</td><td class="num ' + cls(vs(a, p)) + '">' + fmt.pct(vs(a, p)) + '</td><td class="dash">-</td>' +
+        '<td class="num">' + f(ya) + '</td><td class="num ' + cls(vs(ya, yp)) + '">' + fmt.pct(vs(ya, yp)) + '</td><td class="dash">-</td><td class="num ref">' + f(p) + '</td><td class="num ref">' + f(yp) + '</td></tr>';
+    };
+    var b = '<tbody><tr class="block"><td colspan="9">베트남</td></tr><tr class="sub hq"><td>총 매출</td><td colspan="8" style="text-align:left">본사 Tableau 집계 (뷔페·B2B 포함)</td></tr>';
+    b += row('예식매출', 'rev', fmt.mil, 'ALL', 'sub') + row('예식건수', 'cnt', fmt.int, 'ALL', 'sub2') + row('건당 매출', 'per', fmt.mil, 'ALL', 'sub2');
+    b += '<tr class="sub hq"><td>뷔페매출 · B2B매출</td><td colspan="8" style="text-align:left">본사 Tableau 집계</td></tr>';
+    SNAP.capa.forEach(function (c) {
+      b += '<tr class="sub"><td>' + String(c.year).slice(2) + '년 진도율</td><td class="num">' + fmt.rate(c.progress) + '</td><td class="num ' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</td><td class="dash">-</td>' +
+        '<td class="num">' + fmt.rate(c.progress) + '</td><td class="num ' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</td><td class="dash">-</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td><td class="num ref">' + fmt.rate(c.plan_progress) + '</td></tr>';
+    });
+    [['LABELLE', 'La Belle'], ['LECLAIR', 'Le Clair']].forEach(function (x) {
+      b += '<tr class="block"><td colspan="9">' + x[1] + '</td></tr>' + row('예식매출', 'rev', fmt.mil, x[0], 'sub') + row('예식건수', 'cnt', fmt.int, x[0], 'sub2') + row('건당매출', 'per', fmt.mil, x[0], 'sub2') +
+        row('건당 식음매출', 'fb', fmt.mil, x[0], 'sub2') + row('건당 하객수', 'gst', fmt.int, x[0], 'sub2') + row('건당 식음객단가(원)', 'pp', fmt.int, x[0], 'sub2') + row('건당 부대매출', 'anc', fmt.mil, x[0], 'sub2');
+    });
+    document.getElementById('tpl').innerHTML = head + b + '</tbody>';
+  }
+
+  function chart() {
+    var svg = document.getElementById('chart'), box = document.getElementById('chart-box'), tip = document.getElementById('tip');
+    var W = Math.max(300, box.clientWidth - 28), H = 262, pl = 52, pr = 8, pt = 26, pb = 30, h = state.hall;
+    svg.setAttribute('viewBox', '0 0 ' + W + ' ' + H); svg.setAttribute('height', H);
+    var data = SNAP.months.map(function (m) { var x = A(m, h); return { m: m, a: x.a.rev || 0, ac: x.a.cnt || 0, p: x.p ? x.p.rev : 0, pc: x.p ? x.p.cnt : 0 }; });
+    var max = Math.max.apply(null, data.map(function (d) { return Math.max(d.a, d.p) / 1e6; }).concat([1]));
+    var step = max > 600 ? 200 : max > 300 ? 100 : max > 100 ? 50 : 20, top = Math.ceil(max / step) * step;
+    var y = function (v) { return pt + (H - pt - pb) * (1 - v / top); }, bw = (W - pl - pr) / data.length, s = '';
+    for (var v = 0; v <= top; v += step) s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--rule)"/><text x="' + (pl - 8) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="12" fill="var(--ink-3)">' + v.toLocaleString('ko-KR') + '</text>';
+    s += '<text x="' + pl + '" y="12" font-size="11" fill="var(--ink-3)">단위: 백만원</text>';
+    data.forEach(function (d, i) {
+      var cx = pl + bw * i + bw / 2, pw = Math.min(56, bw * 0.6), aw = pw * 0.46, sel = d.m === state.month, av = d.a / 1e6, pv = d.p / 1e6;
+      if (sel) s += '<rect x="' + (pl + bw * i + 2) + '" y="' + pt + '" width="' + (bw - 4) + '" height="' + (H - pt - pb) + '" fill="var(--sunk)"/>';
+      if (pv > 0) s += '<rect x="' + (cx - pw / 2) + '" y="' + y(pv) + '" width="' + pw + '" height="' + (y(0) - y(pv)) + '" fill="none" stroke="var(--plan)" stroke-width="1.5" rx="3"/>';
+      if (av > 0) s += '<rect x="' + (cx - aw / 2) + '" y="' + y(av) + '" width="' + aw + '" height="' + (y(0) - y(av)) + '" fill="var(--accent)" rx="3"/>';
+      s += '<text x="' + cx + '" y="' + (y(av) - 5) + '" text-anchor="middle" font-size="12" font-weight="700" fill="var(--ink)">' + fmt.mil(d.a) + '</text>';
+      s += '<text x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle" font-size="13" fill="' + (sel ? 'var(--ink)' : 'var(--ink-2)') + '" font-weight="' + (sel ? 700 : 400) + '">' + mLabel(d.m) + (isPartial(d.m) ? '*' : '') + '</text>';
+      s += '<rect class="hit" data-i="' + i + '" x="' + (pl + bw * i) + '" y="' + pt + '" width="' + bw + '" height="' + (H - pt - pb) + '" fill="transparent" style="cursor:pointer"/>';
+    });
+    s += '<line x1="' + pl + '" x2="' + (W - pr) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="var(--ink-3)"/>';
+    svg.innerHTML = s;
+    Array.prototype.forEach.call(svg.querySelectorAll('.hit'), function (r) {
+      var d = data[+r.getAttribute('data-i')];
+      r.addEventListener('mousemove', function (e) {
+        var bb = box.getBoundingClientRect();
+        tip.innerHTML = '<b>' + mLabel(d.m) + (isPartial(d.m) ? ' (~' + +cut.slice(8) + '일)' : '') + ' · ' + hallName(h) + '</b><div class="row"><span>실적</span><span class="num">' + fmt.mil(d.a) + ' (' + d.ac + '건)</span></div>' +
+          '<div class="row"><span>계획</span><span class="num">' + fmt.mil(d.p) + ' (' + d.pc + '건)</span></div><div class="row"><span>계획 대비</span><span class="num ' + cls(vs(d.a, d.p)) + '">' + fmt.pct(vs(d.a, d.p)) + '</span></div>';
+        tip.hidden = false;
+        var lx = e.clientX - bb.left + 14; if (lx + 200 > bb.width) lx = e.clientX - bb.left - 200;
+        tip.style.left = lx + 'px'; tip.style.top = (e.clientY - bb.top - 10) + 'px';
+      });
+      r.addEventListener('mouseleave', function () { tip.hidden = true; });
+      r.addEventListener('click', function () { state.month = d.m; save(); render(); });
+    });
+  }
+
+  function board() {
+    var m = state.month, rows = SNAP.board[m] || [], cols = [['LABELLE', '1T'], ['LABELLE', '2T'], ['LABELLE', '3T'], ['LECLAIR', '1T'], ['LECLAIR', '2T'], ['LECLAIR', '3T']];
+    var by = {}, days = [];
+    rows.forEach(function (r) { by[r[0] + '|' + r[1] + '|' + r[2]] = r; if (days.indexOf(r[0]) < 0) days.push(r[0]); });
+    days.sort();
+    var wd = function (d) { return '일월화수목금토'[new Date(d + 'T00:00:00').getDay()]; };
+    var html = '<div class="hd first">일자</div><div class="hd hall">La Belle</div><div class="hd hall">Le Clair</div><div class="hd first"></div>' +
+      cols.map(function (c, i) { return '<div class="hd' + (i === 0 || i === 3 ? ' cell l' : '') + '">' + c[1] + '</div>'; }).join('');
+    var nS = 0, nP = 0, nA = 0, nH = 0, nB = 0;
+    days.forEach(function (d) {
+      html += '<div class="day num">' + +d.slice(5, 7) + '/' + +d.slice(8) + '<small>' + wd(d) + '</small></div>';
+      cols.forEach(function (c, i) {
+        var r = by[d + '|' + c[0] + '|' + c[1]], show = state.hall === 'ALL' || state.hall === c[0], k = 'slot na';
+        if (r && show) {
+          if (r[3]) nS++; if (r[4]) nP++; if (r[5] === 1) { nA++; if (r[4]) nH++; } if (r[5] === 2) nB++;
+          k = r[5] === 1 ? 'slot actual' + (r[4] ? '' : ' unplanned') : r[5] === 2 ? 'slot booked' : (r[3] ? 'slot' + (r[4] ? ' planned' : '') : 'slot na');
+        }
+        html += '<div class="cell' + (i === 0 || i === 3 ? ' l' : '') + '"><span class="' + k + '"></span></div>';
+      });
+    });
+    document.getElementById('board').innerHTML = days.length ? html : '<div class="empty" style="grid-column:1/-1">이 달에는 운영 슬롯이 없습니다.</div>';
+    document.getElementById('board-counts').textContent = mLabel(m) + (isPartial(m) ? ' (~' + +cut.slice(8) + '일 예식까지)' : '') + ' · 운영 슬롯 ' + nS + ' · 계획 예식 ' + nP + ' · 실제 예식 ' + nA + ' (계획 슬롯 적중 ' + nH + ')' + (nB ? ' · 계약 확보 ' + nB : '');
+  }
+
+  function render() {
+    seg('seg-month', SNAP.months.map(function (m) { return [m, mLabel(m) + (isPartial(m) ? '*' : '')]; }), 'month');
+    seg('seg-hall', HALLS, 'hall');
+    kpis(); template(); chart(); board();
+  }
+  render();
+  var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(chart, 120); });
+}
+(function () {
+  var API = 'https://script.google.com/macros/s/AKfycbxar4AniJo0tM44LzhhTI4u0OB1KGHC7oP9Ytl7YJKRZmtRdXOGFkD7YykjtHtYvg_b/exec';
+  var q = location.search.match(/[?&]key=([^&#]*)/);
+  var key = decodeURIComponent((q && q[1]) || location.hash.replace(/^#/, '')).replace(/[^A-Za-z0-9]/g, '').slice(0, 64);
+  var app = document.getElementById('app');
+  if (!key) { boot(null); return; }
+  app.innerHTML = '<div class="empty"><h1>더채플 예식 실적</h1><p>불러오는 중…</p></div>';
+  fetch(API + '?format=json&key=' + encodeURIComponent(key), { credentials: 'omit', cache: 'no-store' })
+    .then(function (r) { return r.json(); })
+    .then(function (d) { boot(d && d.ok ? d.snapshot : null); })
+    .catch(function () { app.innerHTML = '<div class="empty"><h1>더채플 예식 실적</h1><p>데이터를 불러오지 못했습니다. 잠시 후 새로고침해 주세요.</p></div>'; });
+})();
+</script>
+</body>
+</html>
