@@ -43,6 +43,7 @@ section{display:grid;gap:14px}
 .kpi .vs{font-size:13px;color:var(--ink-2)}
 .kpi .ytd{font-size:13px;color:var(--ink-3);border-top:1px dashed var(--rule);padding-top:6px}
 .neg{color:var(--neg)} .pos{color:var(--accent)}
+.th-sub{font-weight:400;color:var(--ink-3);font-size:11px}
 .tbl-wrap{overflow-x:auto;border:1px solid var(--rule);border-radius:8px}
 table{border-collapse:collapse;width:100%;font-size:14px}
 th,td{padding:7px 10px;text-align:right;white-space:nowrap;border-bottom:1px solid var(--rule)}
@@ -123,6 +124,7 @@ function boot(SNAP) {
     '<div class="controls"><div class="ctl"><span>기준월</span><div class="seg" id="seg-month" role="group" aria-label="기준월"></div></div>' +
     '<div class="ctl"><span>홀</span><div class="seg" id="seg-hall" role="group" aria-label="홀"></div></div></div></header>' +
     '<section><div class="sec-head"><h2>요약</h2><p id="kpi-scope"></p></div><div class="kpis" id="kpis"></div></section>' +
+    '<section><div class="sec-head"><h2>' + cutY + '년 연간</h2><p>실적(~' + cut.slice(5).replace('-', '/') + ') + 계약 확보(예식 전) = 연간 예상 · 단위 건, 백만원 · 홀 필터와 무관</p></div><div class="tbl-wrap"><table id="fy"></table></div></section>' +
     '<section><div class="sec-head"><h2>본사 보고 양식</h2><p>템플릿 베트남 블록과 같은 행·열 · 단위 건, 명, 백만원(객단가 원) · 홀 필터와 무관</p></div><div class="tbl-wrap"><table id="tpl"></table></div></section>' +
     '<section><div class="sec-head"><h2>월별 예식매출 · 실적 대비 계획</h2><div class="legend"><span class="key"><i class="sw act"></i>실적</span><span class="key"><i class="sw plan"></i>계획</span></div></div>' +
     '<div class="chart-box" id="chart-box"><svg id="chart" role="img" aria-label="월별 예식매출 실적과 계획" width="100%"></svg><div class="tip" id="tip" hidden></div></div></section>' +
@@ -156,6 +158,24 @@ function boot(SNAP) {
       '<div class="vs num">계획 ' + fmt.rate(c.plan_progress) + ' · <span class="' + cls(c.vs_pp) + '">' + fmt.pp(c.vs_pp) + '</span></div>' +
       '<div class="ytd num">확보 ' + c.booked + ' / CAPA ' + c.capa + '</div></div>' : '';
     document.getElementById('kpis').innerHTML = tile('예식매출', 'rev', '백만원', fmt.mil) + tile('예식건수', 'cnt', '건', fmt.int) + tile('건당 매출', 'per', '백만원', fmt.mil) + prog;
+  }
+
+  function annual() {
+    var y = cutY, nx = new Date(Date.UTC(+cut.slice(0, 4), +cut.slice(5, 7) - 1, +cut.slice(8, 10) + 1)).toISOString().slice(5, 10).replace('-', '/');
+    if (!SNAP.agg['FY-' + y]) { document.getElementById('fy').innerHTML = ''; return; }
+    var head = '<thead><tr><th>구분</th><th>실적<br><span class="th-sub">~' + cut.slice(5).replace('-', '/') + '</span></th><th>계약 확보<br><span class="th-sub">' + nx + '~12/31</span></th><th>연간 예상</th><th class="ref">연간 계획</th><th>예상 vs. 계획</th><th>실적 달성률</th></tr></thead>';
+    var row = function (label, key, f, h, kls) {
+      var ya = A('YTD-' + y, h).a[key], bk = A('BK-' + y, h).a[key], fy = A('FY-' + y, h), fa = fy.a[key], fp = fy.p ? fy.p[key] : null;
+      var rate = (key === 'per' || !fp) ? null : ya / fp;
+      return '<tr class="' + kls + '"><td>' + label + '</td><td class="num">' + f(ya) + '</td><td class="num">' + f(bk) + '</td><td class="num"><b>' + f(fa) + '</b></td><td class="num ref">' + f(fp) + '</td>' +
+        '<td class="num ' + cls(vs(fa, fp)) + '">' + fmt.pct(vs(fa, fp)) + '</td><td class="num">' + (rate === null ? '<span class="dash">-</span>' : fmt.rate(rate)) + '</td></tr>';
+    };
+    var b = '<tbody>';
+    HALLS.forEach(function (x) {
+      b += '<tr class="block"><td colspan="7">' + (x[0] === 'ALL' ? '베트남 전체' : x[1]) + '</td></tr>';
+      b += row('예식매출', 'rev', fmt.mil, x[0], 'sub') + row('예식건수', 'cnt', fmt.int, x[0], 'sub2') + row('건당 매출', 'per', fmt.mil, x[0], 'sub2');
+    });
+    document.getElementById('fy').innerHTML = head + b + '</tbody>';
   }
 
   function template() {
@@ -243,7 +263,7 @@ function boot(SNAP) {
   function render() {
     seg('seg-month', SNAP.months.map(function (m) { return [m, mLabel(m) + (isPartial(m) ? '*' : '')]; }), 'month');
     seg('seg-hall', HALLS, 'hall');
-    kpis(); template(); chart(); board();
+    kpis(); annual(); template(); chart(); board();
   }
   render();
   var rt; window.addEventListener('resize', function () { clearTimeout(rt); rt = setTimeout(chart, 120); });
